@@ -16,7 +16,7 @@ int LastTime = 0;
 
 volatile int RightCount = 0, LeftCount = 0; 
 int RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
-float LastDistanceError = 0, LastAngleError = 0;
+float LastLeftDistanceError = 0, LastRightDistanceError = 0;
 
 void stop()
 {
@@ -87,11 +87,11 @@ void AddToLeftSpeed(float OUT){
 
 void ReadEncoders(){
   bool State = digitalRead(RightEncoder);
-  RightCount +=  (RightSpeed > 0 ? 1 : -1) * State^LastRState;
+  RightCount +=  State^LastRState;
   LastRState = State;
 
   State = digitalRead(LeftEncoder);
-  LeftCount += (LeftSpeed > 0 ? 1 : -1) * State^LastLState;
+  LeftCount +=  State^LastLState;
   LastLState = State;
 }
 
@@ -117,18 +117,25 @@ void loop()
 
 
   // Serial.println((double)LeftCount/RightCount);
-  float KpDist = 5.100000, KdDist = 100.00000;
-  float DesiredDistance = 100.00;
-  float DistanceError = DesiredDistance - ((RightCount+LeftCount)/2.00) * 21.50/40.00;
-  float DistanceOutput = KpDist * DistanceError + KdDist * (DistanceError - LastDistanceError); // negative
-  LastDistanceError = DistanceError;
 
-  //pid On angle -- pcontroller
-  float kpAng = 1, kdAng = 1, C = 40;
-  float DesiredAngle = 0;
-  float AngleError = DesiredAngle * 38.00 - (LeftCount - RightCount);
-  float AngleOutput = (kpAng * AngleError + kdAng * (AngleError - LastAngleError)) * DistanceOutput / 255.00 ; // negative
-  LastAngleError = AngleError;
+
+
+
+  float RightKp = 0.5, LeftKp = 0.5, RightKd = 50, LeftKd = 50;
+  int DesiredDistance = 100 * 40/21.5 ;
+  int RightDistanceError = DesiredDistance - RightCount ;
+  int LeftDistanceError = DesiredDistance - LeftCount;
+  float RightOutput = RightKp * RightDistanceError + RightKd * (RightDistanceError - LastRightDistanceError);
+  float LeftOutput = LeftKp * LeftDistanceError + LeftKd * (LeftDistanceError - LastLeftDistanceError);
+
+  LastRightDistanceError = RightDistanceError;
+  LastLeftDistanceError = LeftDistanceError; 
+  if(Serial.read() == 'a'){
+    RightCount = 0;
+    LeftCount = 0;
+    LastRightDistanceError = 0;
+    LastLeftDistanceError = 0;
+  }
 
   //right += Output2
   //left += Output2
@@ -138,26 +145,30 @@ void loop()
     Serial.print(" ");
     Serial.print(RightCount);
     Serial.print(" ");
-    Serial.print(DistanceError);
-    Serial.print(" ");
-    Serial.print(AngleError);
+    Serial.print(LeftDistanceError);
     Serial.print(" ");
     Serial.print(LeftSpeed);
     Serial.print(" ");
+    Serial.print(LeftOutput);
+    Serial.print(" ");
+    Serial.print(RightDistanceError);
+    Serial.print(" ");
     Serial.print(RightSpeed);
     Serial.print(" ");
-    Serial.print(DistanceOutput);
-    Serial.print(" ");
-    Serial.print(AngleOutput);
-    Serial.println(" ");
+    Serial.print(RightOutput);
+  Serial.println(" ");
   }
 
 
-
   //right -= Output
-  AddToRightSpeed(DistanceOutput - AngleOutput);
-  //left += Output
-  AddToLeftSpeed(DistanceOutput + AngleOutput);
+  if(RightDistanceError > 0) AddToRightSpeed(RightOutput);
+  else {
+    stop();delay(2000000);
+  }
+  if(LeftDistanceError > 0)  AddToLeftSpeed(LeftOutput);
+  else {
+    stop();delay(2000000);
+  }
 
 }
 
