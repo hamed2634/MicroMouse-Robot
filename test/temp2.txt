@@ -1,10 +1,31 @@
+ /*the closed-loop feedback control can be achieved with MPU6050 
+-----------  A5 - SCL ;  A4 - SDA; interupt 2;
+*/
+
+#include <Wire.h>
+#include <I2Cdev.h>
+#define MPU6050_ADDR 0x68 // Alternatively set AD0 to HIGH  --> Address = 0x69
+
+//***** MPU6050 **********
+//A5 - SCL ;  A4 - SDA; interupt 2;
+#define MPU6050_RA_GYRO_ZOUT_H      0x47
+//uint8_t buffer[14];
+float gyroZ; // Raw register values  gyroscope
+
+unsigned long lastTime = 0;
+float dt;      //Differential time
+long gyroZ0 = 0;  //Gyro offset = mean value
+float yaw;
+float yawOld = 0;
+float gyroAngleZ = 0; //Angle variable
+
 int ENA = 5, ENB = 10;
 int IN4 = 9, IN3 = 8, IN2 = 7, IN1 = 6;
 
 #define RightEncoder 3
-#define LeftEncoder 2
+#define LeftEncoder 4
 #define MAXSPEED 255
-#define INITIALSPEED 0
+#define INITIALSPEED 150
 
 #define UPLEFT IN2
 #define UPRIGHT IN4
@@ -15,8 +36,51 @@ bool LastLState = 0;
 
 volatile int RightCount = 0, LeftCount = 0; 
 int RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
-float LastLeftDistanceError = 0, LastRightDistanceError = 0;
+float LastRightDistanceError = 0, LastLeftDistanceError = 0;
 double LastTime = 0;
+
+
+int16_t getRotationZ() {
+  uint8_t buffer[14];
+  I2Cdev::readBytes(MPU6050_ADDR, MPU6050_RA_GYRO_ZOUT_H, 2, buffer);
+  return (((int16_t)buffer[0]) << 8) | buffer[1];
+}
+  //routine from MPU6050.cpp
+  
+    
+void calibration()
+{
+  //Here we do 100 readings for gyro sensitiv Z-axis output -gyroZ, we sum them and divide them by 100.
+  // gyrZ0 mean value of gyroZ raw register values in 100 ms
+
+  unsigned short times = 100; //Sampling times
+  for (int i = 0; i < times; i++)
+  {
+    gyroZ = getRotationZ();     // gyroZ - Raw register values gyroscope Z axis
+    gyroZ0 += gyroZ; //sum all measured values gyroZ
+  }
+  gyroZ0 /= times; 
+}
+
+void calcYaw()
+{
+  unsigned long currentTime = millis();   //current time(ms)
+  //get the current timestamp in Milliseconds since epoch time which is
+  dt = (currentTime - lastTime) / 1000.0; //Differential time(s)
+  lastTime = currentTime;                 //Last sampling time(ms)
+
+  gyroZ = getRotationZ();
+
+  float angularZ = (gyroZ - gyroZ0) / 131.0 * dt; //angular z: =t
+  if (fabs(angularZ) < 0.05) //
+  {
+    angularZ = 0.00;
+  }
+  gyroAngleZ += angularZ; //returns the absolute value of the z-axis rotazion integral 
+  yaw = - gyroAngleZ;
+}
+
+
 
 void stop()
 {
@@ -32,8 +96,8 @@ void stop()
 
 void forward()
 {
-  analogWrite(ENA, 150);
-  analogWrite(ENB, 255);
+  analogWrite(ENA, INITIALSPEED);
+  analogWrite(ENB, INITIALSPEED);
 
   //LEFT
   digitalWrite(IN1, LOW);
@@ -99,27 +163,44 @@ void ReadEncoders(){
 
 void setup() 
 {
-  Serial.begin(38400);
+  Serial.begin(9600);
+  
+  Wire.begin();
+  Wire.beginTransmission(MPU6050_ADDR);
+  Wire.write(0x6B); // PWR_MGMT_1 register
+  Wire.write(0); // wake up!
+  Wire.endTransmission(true);
+  calibration();
+
   pinMode(RightEncoder, INPUT);
   pinMode(LeftEncoder, INPUT);
   //attachInterrupt(digitalPinToInterrupt(LeftEncoder),LeftPulse,RISING);
   //attachInterrupt(digitalPinToInterrupt(RightEncoder),RightPulse,RISING);
-
-
 //  stop();
 }
 
 void loop() 
 {
   ReadEncoders();
-
-
+  // Serial.print(LeftCount);
+  // Serial.print(" ");
+  // Serial.println(RightCount);
   // Serial.println((double)LeftCount/RightCount);
 
 
+  //pid on dist
+  Serial.print(LeftCount);
+  Serial.print(" ");
+  Serial.print(RightCount);
+  Serial.print(" ");
+  // Serial.print(LastLeftDistanceError);
+  // Serial.print(" ");
+  // Serial.print(LastRightDistanceError);
+  // Serial.print(" ");
 
 
-  float RightKp = 0.5, LeftKp = 0.5, RightKd = 50, LeftKd = 50;
+
+  float RightKp = 7.1000, LeftKp = 5.1000, RightKd = 100.00000, LeftKd = 100.00000;
   float DesiredDistance = 100.00;
   float RightDistanceError = DesiredDistance - RightCount * 21.50/40.00;
   float LeftDistanceError = DesiredDistance - LeftCount * 21.50/40.00;
@@ -132,26 +213,24 @@ void loop()
   //right += Output2
   //left += Output2
   
-  Serial.print(LeftCount);
-  Serial.print(" ");
-  Serial.print(RightCount);
-  Serial.print(" ");
+
+
   Serial.print(LeftDistanceError);
-  Serial.print(" ");
-  Serial.print(LeftSpeed);
-  Serial.print(" ");
-  Serial.print(LeftOutput);
   Serial.print(" ");
   Serial.print(RightDistanceError);
   Serial.print(" ");
-  Serial.print(RightSpeed);
+  Serial.print(LeftSpeed);
   Serial.print(" ");
-  Serial.print(RightOutput);
+  Serial.print(RightSpeed);
   Serial.println(" ");
 
+
+
   //right -= Output
-  if(RightDistanceError > 0) AddToRightSpeed(RightOutput);
-  if(LeftDistanceError > 0)  AddToLeftSpeed(LeftOutput);
+  AddToRightSpeed(RightOutput);
+
+  //left += Output
+  AddToLeftSpeed(LeftOutput);
 
 }
 
@@ -162,5 +241,6 @@ void RightPulse(){
 void LeftPulse(){
   LeftCount++;
 }
+
 
 
