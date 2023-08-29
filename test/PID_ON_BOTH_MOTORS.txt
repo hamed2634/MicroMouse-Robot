@@ -1,0 +1,13 @@
+  float RightKp = 7.1000, LeftKp = 5.1000, RightKd = 100.00000, LeftKd = 100.00000;
+  float DesiredDistance = 100.00;
+  float RightDistanceError = DesiredDistance - RightCount * 21.50/40.00;
+  float LeftDistanceError = DesiredDistance - LeftCount * 21.50/40.00;
+  float RightOutput = RightKp * RightDistanceError + RightKd * (RightDistanceError - LastRightDistanceError);
+  float LeftOutput = LeftKp * LeftDistanceError + LeftKd * (LeftDistanceError - LastLeftDistanceError);
+
+  LastRightDistanceError = RightDistanceError;
+  LastLeftDistanceError = LeftDistanceError; 
+
+
+  AddToRightSpeed(RightOutput);
+  AddToLeftSpeed(LeftOutput);

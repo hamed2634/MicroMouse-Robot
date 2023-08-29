@@ -1,0 +1,21 @@
+  // "pid on dist"
+  float KpDist = 5.100000, KdDist = 100.00000;
+  float DesiredDistance = 100.00;
+  float DistanceError = DesiredDistance - ((RightCount+LeftCount)/2.00) * 21.50/40.00;
+  float Output2 = KpDist * DistanceError + KdDist * (DistanceError - LastDistanceError); // negative
+  LastDistanceError = DistanceError;
+
+  //right += Output2, left += Output2
+
+  // "pid On angle"
+  double kpAng = 1, kdAng = 1, C = 40;
+  double DesiredAngle = 0;
+  double AngleError = DesiredAngle * 38.00 - (LeftCount - RightCount);
+  double Output1 = (kpAng * AngleError + kdAng * (AngleError - LastAngleError)) * Output2 / 255.00 ; // negative
+  LastAngleError = AngleError;
+
+  //right -= Output
+  //left += Output
+
+  AddToRightSpeed(Output2 - Output1);
+  AddToLeftSpeed(Output1 + Output2);
