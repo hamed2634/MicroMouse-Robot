@@ -96,22 +96,22 @@ void AddToLeftSpeed(float OUT){
   analogWrite(ENA, (int)fabs(LeftSpeed));
 }
 
-// void TurnRight(){
-//   stop();
-//   while(1){
-//     //pid On angle -- pcontroller
-//     float kpAng = 1, kdAng = 1;
-//     float DesiredAngle = 90;
-//     float AngleError = DesiredAngle - x;
-//     float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
-//     LastAngleError = AngleError;
-//     //right -= Output
-//     AddToRightSpeed(AngleOutput);
-//     //left += Output
-//     AddToLeftSpeed(-AngleOutput);
-//     if(fabs(AngleError) < 1) return;
-//   }
-// }
+void TurnRight(){
+  stop();
+  while(1){
+    //pid On angle -- pcontroller
+    float kpAng = 0.5, kdAng = 10;
+    float DesiredAngle = 90;
+    float AngleError = DesiredAngle - x;
+    float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+    LastAngleError = AngleError;
+    //right -= Output
+    AddToRightSpeed(AngleOutput);
+    //left += Output
+    AddToLeftSpeed(-AngleOutput);
+    if(fabs(AngleError) < 1) return;
+  }
+}
 
 
 void ReadEncoders(){
@@ -143,17 +143,21 @@ void ReadGyro(){
 
 void setup() 
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   pinMode(RightEncoder, INPUT);
   pinMode(LeftEncoder, INPUT);
+
+
   //attachInterrupt(digitalPinToInterrupt(LeftEncoder),LeftPulse,RISING);
   //attachInterrupt(digitalPinToInterrupt(RightEncoder),RightPulse,RISING);
   //while(Serial.read() != 's');
+
     // Try to initialize!
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
       delay(10);
+      Serial.println("Failed to find MPU6050 chip");
     }
   }
   Serial.println("MPU6050 Found!");
@@ -237,7 +241,7 @@ void loop()
   ReadGyro();
 
   //pid On angle -- pcontroller
-  float kpAng = 1, kdAng = 0;
+  float kpAng = 0.8, kdAng = 10;
   float DesiredAngle = 0;
   float AngleError = DesiredAngle - x;
   float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
@@ -247,7 +251,9 @@ void loop()
   // Serial.print(" ");
   // Serial.print(RightCount);
   // Serial.print(" ");
-  Serial.print(" HAMEd ");
+  //Serial.print(" HAMEd ");
+
+
   Serial.print(AngleError);
   Serial.print(" ");
   Serial.print(LeftSpeed);
@@ -259,14 +265,14 @@ void loop()
 
 
 
-  // if(Time > 1000000){
-  //   TurnRight();
-  // }
-  //right -= Output
+  if(Time > 5000){
+    TurnRight();
+  }
+  // right -= Output
   AddToRightSpeed(AngleOutput);
   //left += Output
   AddToLeftSpeed(-AngleOutput);
-  delay(100);
+  delay(30);
 
 }
 
