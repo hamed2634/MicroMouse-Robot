@@ -1,3 +1,4 @@
+//-----------  A5 - SCL ;  A4 - SDA; interupt 2;
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
@@ -6,15 +7,16 @@ Adafruit_MPU6050 mpu;
 sensors_event_t a, g, temp;
 
 float LastTime = 0, Time, dt, Sum;
-float x = 0;
-float XError = 0;
+float z = 0;
+float ZError = 0;
+float DesiredAngle = 0;
 
-int ENA = 5, ENB = 10;
-int IN4 = 9, IN3 = 8, IN2 = 7, IN1 = 6;
+int ENA = 6, ENB = 11;
+int IN4 = 9, IN3 = 10, IN2 = 7, IN1 = 8;
 
-#define RightEncoder 3
-#define LeftEncoder 4
-#define MAXSPEED 255
+#define RightEncoder 4
+#define LeftEncoder 3
+#define MAXSPEED 200
 #define INITIALSPEED 200
 
 #define UPLEFT IN2
@@ -25,7 +27,7 @@ bool LastRState = 0;
 bool LastLState = 0;
 
 volatile int RightCount = 0, LeftCount = 0; 
-float RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
+float RightSpeed = 0, LeftSpeed = 0;
 float LastAngleError = 0;
 
 void stop()
@@ -42,16 +44,17 @@ void stop()
 
 void forward()
 {
-  analogWrite(ENA, INITIALSPEED);
-  analogWrite(ENB, INITIALSPEED);
 
-  //LEFT
+  //Right
+  analogWrite(ENA, INITIALSPEED);
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
 
-  //Right
+  //Left
+  analogWrite(ENB, INITIALSPEED);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
+
 }
 
 void backward()
@@ -70,22 +73,10 @@ void AddToRightSpeed(float OUT){
   RightSpeed += OUT;
   RightSpeed = min(RightSpeed, MAXSPEED);
   RightSpeed = max(RightSpeed, -MAXSPEED);
-  if(RightSpeed < 0){
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
-  }
-  else{
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH);
-  }
-  analogWrite(ENB, (int)fabs(RightSpeed));
-}
 
-void AddToLeftSpeed(float OUT){
-  LeftSpeed += OUT;
-  LeftSpeed = min(LeftSpeed, MAXSPEED);
-  LeftSpeed = max(LeftSpeed, -MAXSPEED);
-  if(LeftSpeed < 0){
+
+  //need optimize
+  if(RightSpeed < 0){
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
   }
@@ -93,50 +84,63 @@ void AddToLeftSpeed(float OUT){
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
   }
-  analogWrite(ENA, (int)fabs(LeftSpeed));
+  analogWrite(ENA, (int)fabs(RightSpeed));
 }
 
-void TurnRight(){
-  stop();
-  while(1){
-    //pid On angle -- pcontroller
-    float kpAng = 0.5, kdAng = 10;
-    float DesiredAngle = 90;
-    float AngleError = DesiredAngle - x;
-    float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
-    LastAngleError = AngleError;
-    //right -= Output
-    AddToRightSpeed(AngleOutput);
-    //left += Output
-    AddToLeftSpeed(-AngleOutput);
-    if(fabs(AngleError) < 1) return;
+void AddToLeftSpeed(float OUT){
+  LeftSpeed += OUT;
+  LeftSpeed = min(LeftSpeed, MAXSPEED);
+  LeftSpeed = max(LeftSpeed, -MAXSPEED);
+  if(LeftSpeed < 0){
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
   }
+  else{
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+  }
+  analogWrite(ENB, (int)fabs(LeftSpeed));
 }
 
-
-void ReadEncoders(){
-  bool State = digitalRead(RightEncoder);
-  RightCount +=  (RightSpeed > 0 ? 1 : -1) * State^LastRState;
-  LastRState = State;
-
-  State = digitalRead(LeftEncoder);
-  LeftCount += (LeftSpeed > 0 ? 1 : -1) * State^LastLState;
-  LastLState = State;
-}
 
 void ReadGyro(){
   mpu.getEvent(&a, &g, &temp);
   Time = millis();
   dt = Time - LastTime;
 
-  Sum = (g.gyro.x - XError);
-  if(fabs(Sum) > 0.05) x += Sum * dt/1000.0 * 180/M_PI;
+  Sum = (g.gyro.z - ZError);
+  if(fabs(Sum) > 0.007) z += Sum * dt/1000.0 * 180/M_PI;
   LastTime = Time;
+  //Serial.println(z);
+}
 
-  Serial.print(dt);
-  Serial.print(" ");
-  Serial.print(x);
-  Serial.print(" ");
+
+void TurnRight(){
+  stop();
+  DesiredAngle += 90;
+  float AngleError = DesiredAngle - z;
+  while(fabs(AngleError) > 1){
+    ReadGyro();
+    //pid On angle -- pcontroller
+    float kpAng = 0.07, kdAng = 7;
+    AngleError = DesiredAngle - z;
+    float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+    AddToRightSpeed(-AngleOutput);
+    //left += Output
+    AddToLeftSpeed(AngleOutput);
+    LastAngleError = AngleError;
+  } 
+}
+
+
+void ReadEncoders(){
+  bool State = digitalRead(RightEncoder);
+  RightCount +=   State^LastRState;
+  LastRState = State;
+
+  State = digitalRead(LeftEncoder);
+  LeftCount += State^LastLState;
+  LastLState = State;
 }
 
 
@@ -146,106 +150,58 @@ void setup()
   Serial.begin(115200);
   pinMode(RightEncoder, INPUT);
   pinMode(LeftEncoder, INPUT);
+  //while(!Serial);
 
 
   //attachInterrupt(digitalPinToInterrupt(LeftEncoder),LeftPulse,RISING);
   //attachInterrupt(digitalPinToInterrupt(RightEncoder),RightPulse,RISING);
-  //while(Serial.read() != 's');
-
     // Try to initialize!
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
     while (1) {
-      delay(10);
+      delay(100);
       Serial.println("Failed to find MPU6050 chip");
     }
   }
   Serial.println("MPU6050 Found!");
 
   mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-  Serial.print("Accelerometer range set to: ");
-  switch (mpu.getAccelerometerRange()) {
-  case MPU6050_RANGE_2_G:
-    Serial.println("+-2G");
-    break;
-  case MPU6050_RANGE_4_G:
-    Serial.println("+-4G");
-    break;
-  case MPU6050_RANGE_8_G:
-    Serial.println("+-8G");
-    break;
-  case MPU6050_RANGE_16_G:
-    Serial.println("+-16G");
-    break;
-  }
+
   mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-  Serial.print("Gyro range set to: ");
-  switch (mpu.getGyroRange()) {
-  case MPU6050_RANGE_250_DEG:
-    Serial.println("+- 250 deg/s");
-    break;
-  case MPU6050_RANGE_500_DEG:
-    Serial.println("+- 500 deg/s");
-    break;
-  case MPU6050_RANGE_1000_DEG:
-    Serial.println("+- 1000 deg/s");
-    break;
-  case MPU6050_RANGE_2000_DEG:
-    Serial.println("+- 2000 deg/s");
-    break;
-  }
 
   mpu.setFilterBandwidth(MPU6050_BAND_5_HZ);
-  Serial.print("Filter bandwidth set to: ");
-  switch (mpu.getFilterBandwidth()) {
-  case MPU6050_BAND_260_HZ:
-    Serial.println("260 Hz");
-    break;
-  case MPU6050_BAND_184_HZ:
-    Serial.println("184 Hz");
-    break;
-  case MPU6050_BAND_94_HZ:
-    Serial.println("94 Hz");
-    break;
-  case MPU6050_BAND_44_HZ:
-    Serial.println("44 Hz");
-    break;
-  case MPU6050_BAND_21_HZ:
-    Serial.println("21 Hz");
-    break;
-  case MPU6050_BAND_10_HZ:
-    Serial.println("10 Hz");
-    break;
-  case MPU6050_BAND_5_HZ:
-    Serial.println("5 Hz");
-    break;
-  }
-
-  Serial.println("");
 
   //calibration
   for(int i = 0; i < 200; i++){
     mpu.getEvent(&a, &g, &temp);
-    XError += g.gyro.x;
+    ZError += g.gyro.z;
   }
-  XError/=200.0;
-  forward();
-  delay(30);
+  ZError/=200.0;
   LastTime = millis();
-//  stop();
-}
 
+
+}
+char turned = 0;
 void loop() 
 {
-  //ReadEncoders();
+  ReadEncoders();
   ReadGyro();
 
   //pid On angle -- pcontroller
-  float kpAng = 0.8, kdAng = 10;
-  float DesiredAngle = 0;
-  float AngleError = DesiredAngle - x;
-  float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+  float kpAng = 0.07, kdAng = 7;
+  float AngleError = DesiredAngle - z;
+  if(fabs(AngleError) < 1){
+    AddToRightSpeed(30);
+    AddToLeftSpeed(30);
+  }else{
+    float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+    AddToRightSpeed(-AngleOutput);
+    //left += Output
+    AddToLeftSpeed(AngleOutput);
+  }
   LastAngleError = AngleError;
+
+
 
   // Serial.print(LeftCount);
   // Serial.print(" ");
@@ -254,26 +210,51 @@ void loop()
   //Serial.print(" HAMEd ");
 
 
-  Serial.print(AngleError);
-  Serial.print(" ");
-  Serial.print(LeftSpeed);
-  Serial.print(" ");
-  Serial.print(RightSpeed);
-  Serial.print(" ");
-  Serial.print(AngleOutput);
-  Serial.println("");
+  // Serial.print(" ");
+  // Serial.print(LeftSpeed);
+  // Serial.print(" ");
+  // Serial.print(RightSpeed);
+  // Serial.print(" ");
+  // Serial.print(AngleOutput);
+  // Serial.println("");
 
 
 
-  if(Time > 5000){
-    TurnRight();
-  }
+  // if(Time > 5000){
+  //   TurnRight();
+  // }
   // right -= Output
-  AddToRightSpeed(AngleOutput);
-  //left += Output
-  AddToLeftSpeed(-AngleOutput);
-  delay(30);
 
+
+// //  delay(30);
+
+//   // 1 = 3.3*PI
+//   // 1 -- > 40
+   float dist = LeftCount/40.0 * 3.65*PI;
+  
+
+  if(dist > 115 && !((turned >> 0) & 1)){
+    TurnRight();
+    turned |= 1 << 0;
+  }
+  
+   else if(dist > 260){
+    stop();
+    delay(1500000);
+  }
+  // else if(dist > 18 * 4 && !((turned >> 1) & 1)){
+  //   TurnRight();
+  //   turned |= 1<<1;
+  // }
+  // else if(dist > 18 * 6 && !((turned >> 2) & 1)){
+  //   TurnRight();
+  //   turned |= 1<<2;
+  // }
+  // else if(dist > 18 * 8 && !((turned >> 3) & 1)){
+  //   TurnRight();
+  //   turned |= 1<<3;
+  // }
+ 
 }
 
 
@@ -283,5 +264,3 @@ void RightPulse(){
 void LeftPulse(){
   LeftCount++;
 }
-
-

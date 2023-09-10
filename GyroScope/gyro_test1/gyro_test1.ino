@@ -9,11 +9,17 @@ double elapsedTime, currentTime, previousTime;
 int c = 0;
 void setup() {
   Serial.begin(19200);
+  Serial.println("1");
   Wire.begin();                      // Initialize comunication
+  Serial.println("2");
   Wire.beginTransmission(MPU);       // Start communication with MPU6050 // MPU=0x68
+  Serial.println("3");
   Wire.write(0x6B);                  // Talk to the register 6B
+  Serial.println("4");
   Wire.write(0x00);                  // Make reset - place a 0 into the 6B register
+  Serial.println("5");
   Wire.endTransmission(true);        //end the transmission
+  Serial.println("6");
   /*
   // Configure Accelerometer Sensitivity - Full Scale Range (default +/- 2g)
   Wire.beginTransmission(MPU);
