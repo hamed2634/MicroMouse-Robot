@@ -9,14 +9,15 @@
 
 //Motors Variables
 #define ENA 6
-#define ENB 10
-#define IN4 9
-#define IN3 11
-#define IN2 7
-#define IN1 8
-#define MAXSPEED 100
-#define INITIALSPEED 100
-float RightSpeed = 0, LeftSpeed = 0;
+#define ENB 5
+#define IN4 10
+#define IN3 9
+#define IN2 8
+#define IN1 7
+#define MAXSPEED 255
+#define MAXTURNSPEED 175
+#define INITIALSPEED 255
+float RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
 
 //gyroscope variables
 Adafruit_MPU6050 mpu;
@@ -24,6 +25,7 @@ sensors_event_t a, g, temp;
 float z = 0;
 float ZError = 0;
 float DesiredAngle = 0;
+float GyroRatio = 352.3333/360;
 
 //Encoders variables
 #define RightEncoder 
@@ -35,21 +37,33 @@ volatile int RightCount = 0, LeftCount = 0;
 //IR Sensors variables
 #define FrontSensor 12
 #define RightDiagonalSensor 4 
-#define LeftDiagonalSensor 5 
-#define RightSensor 0
-#define LeftSensor 1 
+#define LeftDiagonalSensor 11
+#define RightSensor 
+#define LeftSensor 
  
 char IR_Readings; // L - L45 - F - R45 - R
-float DistanceWhenRead;
+float DistanceWhenRead, DistanceWhenDecison;
 
 //Integration varibles
-float LastTime = 0, Time, dt, Sum;
+float LastTime = 0, Time, dt, Area;
 
 //ERRORS
 float LastAngleError = 0;
 
 //pins initialize
 void PinsInitialize(){
+  pinMode(LeftEncoder, INPUT);
+  pinMode(RightDiagonalSensor, INPUT);
+  pinMode(LeftDiagonalSensor, INPUT);
+
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+
  // pinMode(RightEncoder, INPUT);
   pinMode(LeftEncoder, INPUT);
   pinMode(RightDiagonalSensor, INPUT);
@@ -81,8 +95,8 @@ void ReadGyro(){
   mpu.getEvent(&a, &g, &temp);
   Time = millis();
   dt = Time - LastTime;
-  Sum = (g.gyro.z - ZError);
-  if(fabs(Sum) > 0.08) z += Sum * dt/1000.0 * 180/M_PI;
+  Area = (g.gyro.z - ZError) * dt/1000.0 * 180/M_PI;
+  if(fabs(Area) > 0.01) z += Area;
   LastTime = Time;
 }
 
@@ -114,15 +128,15 @@ void ReadIR(){
 }
 
 bool wallFront(){
-  return !getbit(IR_Readings,2);
+  return getbit(IR_Readings,2);
 }
 
 bool wallRight(){
-  return !getbit(IR_Readings,1);
+  return getbit(IR_Readings,1);
 }
 
 bool wallLeft(){
-  return !getbit(IR_Readings,3);
+  return getbit(IR_Readings,3);
 }
 
 float GetDistance(){
@@ -139,6 +153,8 @@ void stop()
   digitalWrite(IN2, LOW);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, LOW);
+  LeftSpeed = 0;
+  RightSpeed = 0;
 }
 
 void forward()
@@ -152,104 +168,157 @@ void forward()
   analogWrite(ENB, INITIALSPEED);
   digitalWrite(IN3, LOW);
   digitalWrite(IN4, HIGH);
+  LeftSpeed = INITIALSPEED;
+  RightSpeed = INITIALSPEED;
+}
+
+void StopSlowly()
+{
+  //Right
+  analogWrite(ENA, 100);
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+
+  //Left
+  analogWrite(ENB, 100);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  LeftSpeed = 100;
+  RightSpeed = 100;
 }
 
 void backward()
 {
   //Right
-  analogWrite(ENA, INITIALSPEED);
+  analogWrite(ENA, abs(INITIALSPEED));
   digitalWrite(IN1, HIGH);
   digitalWrite(IN2, LOW);
 
   //Left
-  analogWrite(ENB, INITIALSPEED);
+  analogWrite(ENB, abs(INITIALSPEED));
   digitalWrite(IN3, HIGH);
   digitalWrite(IN4, LOW);
 }
 
-void AddToRightSpeed(float OUT){
+void AddToRightSpeed(float OUT, int maxspeed){
   //speed
+  int LastSpeed = RightSpeed;
   RightSpeed += OUT;
-  RightSpeed = min(RightSpeed, MAXSPEED);
-  RightSpeed = max(RightSpeed, -MAXSPEED);
+  RightSpeed = min(RightSpeed, maxspeed);
+  RightSpeed = max(RightSpeed, -1 * maxspeed);
+
 
   //need optimize
-  if(RightSpeed < 0){
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-  }
-  else{
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
+  if(RightSpeed * LastSpeed <= 0){
+      if(RightSpeed < 0){
+      digitalWrite(IN1, HIGH);
+      digitalWrite(IN2, LOW);
+    }
+    else{
+      digitalWrite(IN1, LOW);
+      digitalWrite(IN2, HIGH);
+    }
   }
   analogWrite(ENA, (int)fabs(RightSpeed));
 }
 
-void AddToLeftSpeed(float OUT){
+void AddToLeftSpeed(float OUT, int maxspeed){
+  int LastSpeed = LeftSpeed;
   LeftSpeed += OUT;
-  LeftSpeed = min(LeftSpeed, MAXSPEED);
-  LeftSpeed = max(LeftSpeed, -MAXSPEED);
-  if(LeftSpeed < 0){
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
-  }
-  else{
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH);
+  LeftSpeed = min(LeftSpeed, maxspeed);
+  LeftSpeed = max(LeftSpeed, -1 * maxspeed);
+  if(LeftSpeed * LastSpeed <= 0) {
+    if(LeftSpeed < 0){
+      digitalWrite(IN3, HIGH);
+      digitalWrite(IN4, LOW);
+    }
+    else{
+      digitalWrite(IN3, LOW);
+      digitalWrite(IN4, HIGH);
+    }
   }
   analogWrite(ENB, (int)fabs(LeftSpeed));
 }
 
+void Debug(float a, float b, float c,float d,float e){
+  Serial.print(a);
+  Serial.print(" ");
+  Serial.print(b);
+  Serial.print(" ");
+  Serial.print(c);
+  Serial.print(" ");
+  Serial.print(d);
+  Serial.print(" ");
+  Serial.println(e);
+}
+
 void MoveStraight(){
-  //pid On angle -- pdcontroller
-  float kpAng = 0.07, kdAng = 7;
+  //PID On Angle -- PD Controller
+  float kpAng = 0.07, kdAng = 7, AngleOutput = 0;
   float AngleError = DesiredAngle - z;
-  if(fabs(AngleError) < 1){
-    AddToRightSpeed(30);
-    AddToLeftSpeed(30);
-  }
-  else{
-    float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
-    AddToRightSpeed(AngleOutput);
-    //left += Output
-    AddToLeftSpeed(-AngleOutput);
-  }
+  AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+  AddToRightSpeed(AngleOutput,MAXSPEED);
+  AddToLeftSpeed(-1 * AngleOutput, MAXSPEED);
   LastAngleError = AngleError;
+  //Debug(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
 }
 
 
 void TurnRight(){
-  stop();
-  DesiredAngle += 90;
+  StopSlowly();
+  DesiredAngle -= 90 * GyroRatio;
   float AngleError = DesiredAngle - z;
   while(fabs(AngleError) > 1){
     ReadGyro();
     //pid On angle -- pcontroller
-    float kpAng = 0.07, kdAng = 7;
+    float kpAng = 0.1, kdAng = 0;
     AngleError = DesiredAngle - z;
     float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
-    AddToRightSpeed(AngleOutput);
+    AddToRightSpeed(AngleOutput,MAXTURNSPEED);
     //left += Output
-    AddToLeftSpeed(-AngleOutput);
+    AddToLeftSpeed(-1 * AngleOutput,MAXTURNSPEED);
     LastAngleError = AngleError;
+    //Debug(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
   } 
+  forward();
 }
 
 void TurnLeft(){
   stop();
-  DesiredAngle -= 90;
+  DesiredAngle += 90 * GyroRatio;
   float AngleError = DesiredAngle - z;
   while(fabs(AngleError) > 1){
     ReadGyro();
     //pid On angle -- pcontroller
-    float kpAng = 0.08, kdAng = 7;
+    float kpAng = 0.1  , kdAng = 0;
     AngleError = DesiredAngle - z;
     float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
-    AddToRightSpeed(AngleOutput);
+    AddToRightSpeed(AngleOutput, MAXTURNSPEED);
     //left += Output
-    AddToLeftSpeed(-AngleOutput);
+    AddToLeftSpeed(-1 * AngleOutput, MAXTURNSPEED);
     LastAngleError = AngleError;
+    //Debug(z,DesiredAngle,AngleError, LeftSpeed - AngleOutput, RightSpeed + AngleOutput);
   } 
+  forward();
+}
+
+void TurnAround(){
+  stop();
+  DesiredAngle += 180 * GyroRatio;
+  float AngleError = DesiredAngle - z;
+  while(fabs(AngleError) > 1){
+    ReadGyro();
+    //pid On angle -- pcontroller
+    float kpAng = 0.1  , kdAng = 0;
+    AngleError = DesiredAngle - z;
+    float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+    AddToRightSpeed(AngleOutput, MAXTURNSPEED);
+    //left += Output
+    AddToLeftSpeed(-1 * AngleOutput, MAXTURNSPEED);
+    LastAngleError = AngleError;
+    //Debug(z,DesiredAngle,AngleError, LeftSpeed - AngleOutput, RightSpeed + AngleOutput);
+  } 
+  forward();
 }
 
 
@@ -264,21 +333,81 @@ void PrintIR(){
 void setup() 
 {
   Serial.begin(115200);
+
+  while(Serial.read() != 's');
   PinsInitialize();
   GyroScopeInit();
 
 
-  //attachInterrupt(digitalPinToInterrupt(LeftEncoder),LeftPulse,RISING);
-  //attachInterrupt(digitalPinToInterrupt(RightEncoder),RightPulse,RISING);
+
+  forward();
   LastTime = millis();
 }
 bool turned = 0;
 void loop() 
 {
+
+  if(Serial.available()){
+    char choice = Serial.read();
+    if(choice == 's'){
+      stop();
+      delay(10000000);
+    }
+  }
+
   ReadEncoders();
   ReadGyro();
-  MoveStraight();
-  //ReadIR();
+  ReadIR();
+  //MoveStraight();
+
+  // if(GetDistance() - DistanceWhenDecison > 2.00){
+  //   if(wallFront()){
+  //     Serial.println("Turning Around");
+  //     TurnAround();
+  //   }
+  //   else if(!wallRight()){
+  //     Serial.println("Turning Right");
+  //     DistanceWhenRead = GetDistance();
+  //     while(GetDistance() - DistanceWhenRead < 7.00){
+  //       ReadEncoders();
+  //       ReadGyro();
+  //       MoveStraight();
+  //     }
+  //     TurnRight();
+  //   }
+  //   else if(!wallLeft()){
+  //     Serial.println("Turning Left");
+  //     DistanceWhenRead = GetDistance();
+  //     while(GetDistance() - DistanceWhenRead < 7.00){
+  //       ReadEncoders();
+  //       ReadGyro();
+  //       MoveStraight();
+  //     }
+  //     TurnLeft();
+  //   }
+  //   DistanceWhenDecison = GetDistance();
+  // }
+
+  // Serial.println(z);
+
+
+
+  // if(Serial.available()){
+  //   char choice = Serial.read();
+  //   if(choice == 's'){
+  //     stop();
+  //     z = 0;
+  //     while(Serial.read() != 's');
+  //     forward();
+  //   }
+  //   else if(choice == 'l'){
+  //     TurnLeft();
+  //   }
+  //   else if(choice == 'r'){
+  //     TurnRight();
+  //   }
+  // }
+
   //PrintIR();
   //Serial.println(z);
 
@@ -287,18 +416,11 @@ void loop()
   //   delay(200000);
   // }
 
-  // if(!turned && GetDistance() > 100){
-  //   TurnLeft();
-  //   turned = 1;
-  // }
-  // else if(GetDistance() > 200){
-  //   stop();
-  //   delay(200000);
+  // if(GetDistance() > 100) {
+  //   TurnRight();
+  //   LeftCount = 0;
   // }
 
-
-
-  // ReadIR();
   // if(!wallFront()){
   //   MoveStraight();
   // }
@@ -310,29 +432,35 @@ void loop()
   // }
 
 
-  // if(GetDistance() - DistanceWhenRead > 18){
-  //   if(!wallFront()){
-  //     MoveStraight();
-  //   }
-  //   else if(!wallRight()){
-  //     TurnRight();
-  //   }
-  //   else if(!wallLeft()){
-  //     TurnLeft();
-  //   }
-  //   ReadIR();
-  //   DistanceWhenRead = GetDistance();
-  // }
-  // else {
-  //   MoveStraight();
-  // }
+  if(GetDistance() - DistanceWhenRead > 17.00){
+    if(wallFront() && wallRight() && wallLeft()){
+      Serial.println("Turning Around");
+      TurnAround();
+    }
+    else if(!wallFront()){
+      MoveStraight();
+    }
+    else if(!wallRight()){
+      TurnRight();
+      Serial.println("Turning Right");
+    }
+    else if(!wallLeft()){
+      TurnLeft();
+      Serial.println("Turning Left");
+    }
+    ReadIR();
+    DistanceWhenRead = GetDistance();
+  }
+  else {
+    MoveStraight();
+  }
 
   //MoveStraight();
-  // Serial.print(wallLeft());
-  // Serial.print(" ");
-  // Serial.print(wallFront());
-  // Serial.print(" ");
-  // Serial.println(wallRight());
+  Serial.print(wallLeft());
+  Serial.print(" ");
+  Serial.print(wallFront());
+  Serial.print(" ");
+  Serial.println(wallRight());
 
   
   // Serial.print(digitalRead(LeftSensor));

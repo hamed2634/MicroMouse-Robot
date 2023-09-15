@@ -1,0 +1,5 @@
+Kp
+1 ---> UNstaple
+0.1 --> stable and slow
+0.5 --> unstable over time
+0.12->stable

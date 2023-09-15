@@ -19,10 +19,7 @@ int IN4 = 9, IN3 = 10, IN2 = 7, IN1 = 8;
 #define MAXSPEED 255
 #define INITIALSPEED 255
 
-#define UPLEFT IN2
-#define UPRIGHT IN4
-#define DOWNLEFT IN1
-#define DOWNRIGHT IN3
+
 bool LastRState = 0;
 bool LastLState = 0;
 
