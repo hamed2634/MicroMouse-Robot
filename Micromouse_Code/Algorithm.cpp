@@ -5,16 +5,16 @@ void move(short &Direction, short x, short y, short toX, short toY) {
         if (y > toY) {
             switch (Direction) {
                 case NORTH:
-                    turnLeft(), moveForward();
+                    TurnLeft(), MoveCellForward();
                     break;
                 case SOUTH:
-                    turnRight(), moveForward();
+                    TurnRight(), MoveCellForward();
                     break;
                 case WEST:
-                    moveForward();
+                    MoveCellForward();
                     break;
                 case EAST:
-                    turnRight(), turnRight(), moveForward();
+                    TurnRight(), TurnRight(), MoveCellForward();
                     break;
                 default:
 
@@ -25,16 +25,16 @@ void move(short &Direction, short x, short y, short toX, short toY) {
         else {
             switch (Direction) {
                 case NORTH:
-                    turnRight(), moveForward();
+                    TurnRight(), MoveCellForward();
                     break;
                 case SOUTH:
-                    turnLeft(), moveForward();
+                    TurnLeft(), MoveCellForward();
                     break;
                 case WEST:
-                    turnRight(), turnRight(), moveForward();
+                    TurnRight(), TurnRight(), MoveCellForward();
                     break;
                 case EAST:
-                    moveForward();
+                    MoveCellForward();
                     break;
                 default:
 
@@ -46,16 +46,16 @@ void move(short &Direction, short x, short y, short toX, short toY) {
     else if (x > toX) {
         switch (Direction) {
             case NORTH:
-                moveForward();
+                MoveCellForward();
                 break;
             case SOUTH:
-                turnRight(), turnRight(), moveForward();
+                TurnRight(), TurnRight(), MoveCellForward();
                 break;
             case WEST:
-                turnRight(), moveForward();
+                TurnRight(), MoveCellForward();
                 break;
             case EAST:
-                turnLeft(), moveForward();
+                TurnLeft(), MoveCellForward();
                 break;
             default:
 
@@ -66,16 +66,16 @@ void move(short &Direction, short x, short y, short toX, short toY) {
     else {
         switch (Direction) {
             case NORTH:
-                turnRight(), turnRight(), moveForward();
+                TurnRight(), TurnRight(), MoveCellForward();
                 break;
             case SOUTH:
-                moveForward();
+                MoveCellForward();
                 break;
             case WEST:
-                turnLeft(), moveForward();
+                TurnLeft(), MoveCellForward();
                 break;
             case EAST:
-                turnRight(), moveForward();
+                TurnRight(), MoveCellForward();
                 break;
             default:
 
@@ -140,7 +140,6 @@ void updateCoordinates(short Direction, short Wall, short x, short y, short &toX
                 toX = --x, toY = y;
                 return;
             default:
-
                 break;
         }
     }

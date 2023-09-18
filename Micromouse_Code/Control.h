@@ -4,10 +4,19 @@
 #include "Sensors.h"
 #include "lib.h"
 
+#define CellWidth 18
+#define CenterToSensing  5
+#define StartToCenter 5
 
 void MoveStraight();
 
 void TurnRight();
 
 void TurnLeft();
+
+void AdjustAlignment();
+
+void MoveToCenter();
+
+void MoveCellForward();
 #endif

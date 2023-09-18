@@ -3,7 +3,7 @@
 //gyroscope variables
 Adafruit_MPU6050 mpu;
 sensors_event_t a, g, temp;
-float z = 0, ZError = 0;
+float AngleZ = 0, ZError = 0;
 
 
 //Integration varibles
@@ -44,7 +44,7 @@ void ReadGyro(){
   Time = millis();
   dt = Time - LastTime;
   Area = (g.gyro.z - ZError) * dt/1000.0 * 180/M_PI;
-  if(fabs(Area) > 0.01) z += Area;
+  if(fabs(Area) > 0.01) AngleZ += Area;
   LastTime = Time;
 }
 

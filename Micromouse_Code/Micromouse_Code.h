@@ -2,10 +2,8 @@
 #define MICROMOUSE_CODE
 
 #include "Setup.h"
-#include "Control.h"
-#include "lib.h"
+#include "Algorithm.h"
 
 
-bool turned = 0;
 void loop();
 #endif

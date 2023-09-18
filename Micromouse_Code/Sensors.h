@@ -37,6 +37,8 @@
 
   void ReadIR();
 
+  void ReadUltra();
+
   bool wallFront();
 
   bool wallRight();
