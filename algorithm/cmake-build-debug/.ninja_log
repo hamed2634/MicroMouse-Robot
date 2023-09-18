@@ -1,0 +1,5 @@
+# ninja log v5
+2	198	7160828695278357	CMakeFiles/test.dir/main.cpp.obj	8070350c9636671d
+536	640	7160843103752435	test.exe	fa1b1c04735c092e
+3	967	7160656776775185	CMakeFiles/test.dir/API/API.cpp.obj	566bd870a0c17b69
+3	536	7160843102746239	CMakeFiles/test.dir/FloodFill/floodfill.cpp.obj	4f20c42bdd2845e
