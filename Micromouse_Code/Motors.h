@@ -22,6 +22,8 @@ void backward();
 
 void stop();
 
+void StopSlowly();
+
 void AddToRightSpeed(float, int);
 
 void AddToLeftSpeed(float, int);
