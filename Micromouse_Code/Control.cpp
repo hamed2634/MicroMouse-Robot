@@ -1,5 +1,10 @@
 #include "Control.h"
 
+extern float z, ZError;
+//ERRORS
+float LastAngleError = 0;
+float DesiredAngle = 0;
+
 void MoveStraight(){
   //pid On angle -- pdcontroller
   float kpAng = 0.07, kdAng = 7;

@@ -1,7 +1,8 @@
 #include "Micromouse_Code.h" 
+extern int Count;
 void loop() 
 {
-  ReadEncoders();
+  ReadEncoder();
   ReadGyro();
   MoveStraight();
   //ReadIR();
@@ -15,7 +16,7 @@ void loop()
 
   if(GetDistance() > 100){
     TurnLeft();
-    LeftCount = 0;
+    Count = 0;
   }
   
   // ReadIR();

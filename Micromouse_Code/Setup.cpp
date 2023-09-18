@@ -1,10 +1,14 @@
 #include "Setup.h"
-
+extern float LastTime;
 //pins initialize
+
 void PinsInitialize(){
-  pinMode(LeftEncoder, INPUT);
-  pinMode(RightDiagonalSensor, INPUT);
-  pinMode(LeftDiagonalSensor, INPUT);
+  pinMode(Encoder, INPUT);
+
+  pinMode(RightFatalSensor, INPUT);
+  pinMode(LeftFatalSensor, INPUT);
+  //pinMode(RightSensor, INPUT);
+  //pinMode(LeftSensor, INPUT);
 
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
@@ -12,17 +16,7 @@ void PinsInitialize(){
   pinMode(IN2, OUTPUT);
   pinMode(IN3, OUTPUT);
   pinMode(IN4, OUTPUT);
-
-
- // pinMode(RightEncoder, INPUT);
-  pinMode(LeftEncoder, INPUT);
-  pinMode(RightDiagonalSensor, INPUT);
-  pinMode(LeftDiagonalSensor, INPUT);
-  // pinMode(RightSensor, INPUT);
-  // pinMode(LeftSensor, INPUT);
-  pinMode(FrontSensor, INPUT);
 }
-
 
 
 void setup() 

@@ -121,7 +121,7 @@ void ReadIR(){
 
 void ReadUltra(){
   if(Ultra.ping_cm() < MAX_ALLOWED_DISTANCE) setbit(Wall_Readings,2);
-  else clrbit(Wall_Readings,2);
+  else clrbit(Wall_Readings,2); 
 }
 
 bool wallFront(){

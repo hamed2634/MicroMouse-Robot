@@ -1,8 +1,6 @@
 #ifndef DEBUG_H
   #define DEBUG_H
-
-  #include "Setup.h"
-  #include "Control.h"
+  #include "lib.h"
 void Debug(float );
 void Debug2(float ,float );
 void Debug3(float ,float , float );

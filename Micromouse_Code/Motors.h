@@ -1,5 +1,8 @@
 #ifndef MOTORS_H
-  #define MOTORS_H
+#define MOTORS_H
+
+#include "lib.h"
+
 //Motors Variables
 #define ENA 6
 #define ENB 5
@@ -8,10 +11,10 @@
 #define IN2 8
 #define IN1 7
 
+//Motors Speeds
 #define MAXSPEED 255
 #define MAXTURNSPEED 150
 #define INITIALSPEED 255
-float RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
 
 void forward();
 
@@ -22,4 +25,5 @@ void stop();
 void AddToRightSpeed(float, int);
 
 void AddToLeftSpeed(float, int);
+
 #endif
