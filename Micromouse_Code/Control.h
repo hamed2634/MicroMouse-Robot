@@ -6,7 +6,7 @@
 
 #define CellWidth 18
 #define CenterToSensing  5
-#define StartToCenter 5
+#define StartToCenter 2
 
 void MoveStraight();
 

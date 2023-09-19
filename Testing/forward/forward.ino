@@ -1,10 +1,12 @@
 
-#define ENA 6
-#define ENB 11
-#define IN4 9
-#define IN3 10
-#define IN2 7
-#define IN1 8
+//Motors Variables
+#define ENA 5
+#define ENB 6
+#define IN4 7
+#define IN3 8
+#define IN2 9
+#define IN1 10
+
 
 void stop()
 {
@@ -25,10 +27,10 @@ void forward()
   digitalWrite(IN1, LOW);
   digitalWrite(IN2, HIGH);
 
-  //Left
-  analogWrite(ENB, 255);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
+  // //Left
+  // analogWrite(ENB, 255);
+  // digitalWrite(IN3, LOW);
+  // digitalWrite(IN4, HIGH);
 }
 void backward()
 {
@@ -44,7 +46,7 @@ void backward()
 void setup() 
 {
   Serial.begin(115200);
-  forward();
+  //forward();
   delay(30);
 }
 

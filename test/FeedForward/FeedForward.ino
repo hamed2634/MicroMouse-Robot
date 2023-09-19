@@ -12,8 +12,8 @@
 //Motors Variables
 #define ENA 5
 #define ENB 6
-#define IN4 8
-#define IN3 7
+#define IN4 7
+#define IN3 8
 #define IN2 9
 #define IN1 10
 #define MAXSPEED 255
@@ -23,10 +23,17 @@ float RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
 
 //UltraSonic
 #define MAX_MEASURED_DISTANCE 288
-#define TRIGGER A0
-#define ECHO A1
-#define MAX_ALLOWED_DISTANCE 5
-NewPing Ultra = NewPing(TRIGGER, ECHO, MAX_MEASURED_DISTANCE); // Each sensor's trigger pin, echo pin, and max distance to ping.
+#define LeftTrigger A2
+#define LeftEcho A3
+#define FrontTrigger 11
+#define FrontEcho 3
+#define RightTrigger A0
+#define RightEcho A1
+#define MAX_ALLOWED_Vert_DISTANCE 5
+#define MAX_ALLOWED_Horiz_DISTANCE 16
+NewPing LeftUltra = NewPing(LeftTrigger, LeftEcho, MAX_MEASURED_DISTANCE); // Each sensor's trigger pin, echo pin, and max distance to ping.
+NewPing FrontUltra = NewPing(FrontTrigger, FrontEcho, MAX_MEASURED_DISTANCE);
+NewPing RightUltra = NewPing(RightTrigger, RightEcho, MAX_MEASURED_DISTANCE);
 
 //gyroscope variables
 Adafruit_MPU6050 mpu;
@@ -37,15 +44,15 @@ int DesiredAngle = 0;
 float GyroRatio = 352.3333/360;
 
 //Encoders variables
-#define Encoder 3
+#define Encoder 13
 bool LastEncoderState = 0;
 volatile int Count = 0; 
 
 //IR Sensors variables
 #define RightFatalSensor 4 
-#define LeftFatalSensor 11
-//#define RightSensor 
-//#define LeftSensor 
+#define LeftFatalSensor 12
+// #define RightSensor 1
+// #define LeftSensor 12
  
 char Wall_Readings; // L - L45 - F - R45 - R
 
@@ -105,6 +112,31 @@ void ReadEncoder(){
   LastEncoderState = State;
 }
 
+
+// void ReadWallsIR(){
+
+//   if(!digitalRead(LeftSensor)) setbit(Wall_Readings,1);
+//   else clrbit(Wall_Readings,1);
+
+//   if(FrontUltra.ping_cm() < MAX_ALLOWED_Vert_DISTANCE) setbit(Wall_Readings,2);
+//   else clrbit(Wall_Readings,2); 
+
+//   if(!digitalRead(RightSensor)) setbit(Wall_Readings,3);
+//   else clrbit(Wall_Readings,3);
+
+// }
+
+void ReadWallsUltra(){
+  if(LeftUltra.ping_cm() < MAX_ALLOWED_Horiz_DISTANCE) setbit(Wall_Readings,1);
+  else clrbit(Wall_Readings,1); 
+
+  if(FrontUltra.ping_cm() < MAX_ALLOWED_Vert_DISTANCE) setbit(Wall_Readings,2);
+  else clrbit(Wall_Readings,2); 
+
+  if(RightUltra.ping_cm() < MAX_ALLOWED_Horiz_DISTANCE) setbit(Wall_Readings,3);
+  else clrbit(Wall_Readings,3); 
+}
+
 void ReadIR(){
   if(!digitalRead(LeftFatalSensor)) setbit(Wall_Readings,0);
   else clrbit(Wall_Readings,0);
@@ -120,8 +152,18 @@ void ReadIR(){
 }
 
 void ReadUltra(){
-  if(Ultra.ping_cm() < MAX_ALLOWED_DISTANCE) setbit(Wall_Readings,2);
+  if(LeftUltra.ping_cm() < MAX_ALLOWED_Horiz_DISTANCE) setbit(Wall_Readings,1);
+  else clrbit(Wall_Readings,1); 
+
+  if(FrontUltra.ping_cm() < MAX_ALLOWED_Vert_DISTANCE) setbit(Wall_Readings,2);
   else clrbit(Wall_Readings,2); 
+
+  if(RightUltra.ping_cm() < MAX_ALLOWED_Horiz_DISTANCE) setbit(Wall_Readings,3);
+  else clrbit(Wall_Readings,3); 
+}
+
+bool wallLeft(){
+  return getbit(Wall_Readings,1);
 }
 
 bool wallFront(){
@@ -132,9 +174,6 @@ bool wallRight(){
   return getbit(Wall_Readings,3);
 }
 
-bool wallLeft(){
-  return getbit(Wall_Readings,1);
-}
 
 float GetDistance(){
   return Count/40.0 * 3.65*PI;
@@ -257,8 +296,6 @@ void MoveStraight(){
 
   int SpeedOutput = KpSpeed * SpeedError;
 
-
-  
   // int bias = 5;
   // int SpeedOutput = Timer/1000 * bias;
 
@@ -267,15 +304,31 @@ void MoveStraight(){
   float AngleError = DesiredAngle - z;
   AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
 
-
   AddToRightSpeed(SpeedOutput + AngleOutput,MAXSPEED);
   AddToLeftSpeed(SpeedOutput + -1 * AngleOutput, MAXSPEED);
   LastAngleError = AngleError;
   Debug(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
 
-  // Timer++;
 }
+void MoveStraightUltra(){
+  //FeedForward
+  int DesiredSpeed = 255;
+  float KpSpeed = 0.01;
+  float SpeedError = DesiredSpeed - (LeftSpeed + RightSpeed)/2.0;
 
+  int SpeedOutput = KpSpeed * SpeedError;
+
+  //PID On Angle -- PD Controller
+  float kpAng = 0.001, kdAng = 0, AngleOutput = 0;  
+  float AngleError = LeftUltra.ping_cm() - RightUltra.ping_cm();
+  AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+
+  AddToRightSpeed(SpeedOutput - AngleOutput,MAXSPEED);
+  AddToLeftSpeed(SpeedOutput  + AngleOutput, MAXSPEED);
+  LastAngleError = AngleError;
+  //Debug(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
+
+}
 
 void TurnRight(){
   StopSlowly();
@@ -285,8 +338,8 @@ void TurnRight(){
     ReadGyro();
     //pid On angle -- pcontroller
     //float kpAng = 0.2, kdAng = 10;
-    //float kpAng = 0.05, kdAng = 5;
-    float kpAng = 0.15, kdAng = 15;
+    float kpAng = 0.05, kdAng = 5;
+    //float kpAng = 0.15, kdAng = 15;
     AngleError = DesiredAngle - z;
     float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
     AddToRightSpeed(AngleOutput,MAXTURNSPEED);
@@ -348,7 +401,8 @@ void PrintIR(){
 bool turned = 0;
 bool MovedToCenter = 0; 
 float CellWidth = 18;
-float CenterToSensing = 5;
+float CenterToSensing = 12;
+float StartToSensing = 2.5;
 float X_Distance;
 float Y_Distance;
 float LastVisitedCenter;
@@ -357,12 +411,12 @@ bool Sensed;
 void setup() 
 {
   Serial.begin(115200);
-  forward();
-  delay(5000000);
+  // forward();
+  // delay(5000000);
   //while(Serial.read() != 's');
   PinsInitialize();
   GyroScopeInit();
-
+  forward();
   LastTime = millis();
 }
 
@@ -376,24 +430,31 @@ void loop()
   ReadGyro();
   ReadEncoder();
   MoveStraight();
-  if(GetDistance() > CellWidth){
-    Count = 0;
-    Sensed = 0; 
-    //TakeDecision of Rotating
+  //Serial.println(Count);
 
-  }
-  if(!Sensed && GetDistance() > CenterToSensing){
-    ReadIR();
-    ReadUltra();
-    Sensed = 1;
-  } 
-
-  // if(GetDistance() > 50 && !turned) {
-  //   TurnRight();
-  //   LeftCount = 0;
-  //   turned = 1;
+  // Serial.print(LeftUltra.ping_cm());
+  // Serial.print(" ");
+  // Serial.print(FrontUltra.ping_cm());
+  // Serial.print(" ");
+  // Serial.print(RightUltra.ping_cm());
+  // Serial.println();
+  //MoveStraightUltra();
+  // if(GetDistance() > CellWidth){
+  //   Count = 0;
+  //   Sensed = 0; 
+  //   //TakeDecision of Rotating
   // }
+  // if(!Sensed && GetDistance() > CenterToSensing){
+  //   ReadWallsUltra();
+  //   Sensed = 1;
+  //   stop();
+  //   delay(5000000);
+  // } 
 
+  if(GetDistance() > 50 && !turned) {
+    TurnRight();
+    turned = 1;
+  }
 
   // if(GetDistance() - DistanceWhenDecison > 2.00){
   //   if(wallFront()){

@@ -3,7 +3,8 @@
 
 #include "Control.h"
 
-#define	IMPLEMENTATION	FIFO
+#define	QUEUE	FIFO
+#define STACK LIFO
 
 #define NORTH 0
 #define SOUTH 1
@@ -12,8 +13,8 @@
 
 void updateCoordinates(short Direction, short Wall, short x, short y, short &toX, short &toY);
 void move(short &Direction, short x, short y, short toX, short toY);
-void floodFill(short x, short y, short &Direction, bool visited[][17], bool matrix[][257]);
-void BFS(short source, short target, short Direction, bool matrix[][257]);
+void floodFill(short x, short y, short &Direction);
+void BFS(short source, short target, short& Direction);
 void doIt();
 
 #endif

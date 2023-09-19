@@ -1,4 +1,6 @@
 #include "Algorithm.h"
+bool visited[17][17];
+short matrix[257][1];
 
 void move(short &Direction, short x, short y, short toX, short toY) {
     if (toX == x) {
@@ -146,7 +148,7 @@ void updateCoordinates(short Direction, short Wall, short x, short y, short &toX
 }
 
 
-void floodFill(short x, short y, short &Direction, bool visited[][17], bool matrix[][257]) {
+void floodFill(short x, short y, short &Direction) {
     visited[x][y] = true;
 
     short toX, toY, a, b;
@@ -160,7 +162,7 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], bool matr
 
         if (! visited[toX][toY]) {
             move(Direction, x, y, toX, toY);
-            floodFill(toX, toY, Direction, visited, matrix);
+            floodFill(toX, toY, Direction);
             move(Direction, toX, toY, x, y);
         }
     }
@@ -174,7 +176,7 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], bool matr
 
         if (! visited[toX][toY]) {
             move(Direction, x, y, toX, toY);
-            floodFill(toX, toY, Direction, visited, matrix);
+            floodFill(toX, toY, Direction);
             move(Direction, toX, toY, x, y);
         }
     }
@@ -188,7 +190,7 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], bool matr
 
         if (! visited[toX][toY]) {
             move(Direction, x, y, toX, toY);
-            floodFill(toX, toY, Direction, visited, matrix);
+            floodFill(toX, toY, Direction);
             move(Direction, toX, toY, x, y);
         }
     }
@@ -202,7 +204,7 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], bool matr
 
         if (! visited[toX][toY]) {
             move(Direction, x, y, toX, toY);
-            floodFill(toX, toY, Direction, visited, matrix);
+            floodFill(toX, toY, Direction);
             move(Direction, toX, toY, x, y);
         }
     }
@@ -216,7 +218,7 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], bool matr
 
         if (! visited[toX][toY]) {
             move(Direction, x, y, toX, toY);
-            floodFill(toX, toY, Direction, visited, matrix);
+            floodFill(toX, toY, Direction);
             move(Direction, toX, toY, x, y);
         }
     }
@@ -230,17 +232,18 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], bool matr
 
         if (! visited[toX][toY]) {
             move(Direction, x, y, toX, toY);
-            floodFill(toX, toY, Direction, visited, matrix);
+            floodFill(toX, toY, Direction);
             move(Direction, toX, toY, x, y);
         }
     }
+
 }
 
 
-void BFS(short source, short target, short Direction, bool matrix[][257]) {
+void BFS(short source, short target,short & Direction) {
     short n = 257;
 
-    cppQueue	q(sizeof(int), 255, IMPLEMENTATION);	// Instantiate queue
+    cppQueue	q(sizeof(int), 255, QUEUE);	// Instantiate queue
 
     short depth[n], parent[n];
     for (short i = 0; i < n; ++i) {
@@ -251,7 +254,7 @@ void BFS(short source, short target, short Direction, bool matrix[][257]) {
     parent[source] = -1;
     depth[source] = 0;
 
-    for (short d = 0, length = (short) q.size(); ! q.isEmpty() && depth[target] == -1; ++d, length = (short) q.size()) {
+    for (short d = 0, length = (short) q.sizeOf(); ! q.isEmpty() && depth[target] == -1; ++d, length = (short) q.sizeOf()) {
         while (length-- && depth[target] == -1) {
             short p; q.pop(&p);
 
@@ -271,11 +274,11 @@ void BFS(short source, short target, short Direction, bool matrix[][257]) {
         }
     }
 
-    SimpleStack<short> path(255); // Create a stack with maximum size of 255
+    cppQueue path(sizeof(int), 255, STACK);	// Instantiate Stack
 
 
     for (short current = target; parent[current] != -1; current = parent[current])
-        path.push(current);
+        path.push(&current);
 
     short x = 16, y = 1, a, b;
     while (! path.isEmpty()) {
@@ -297,7 +300,6 @@ void BFS(short source, short target, short Direction, bool matrix[][257]) {
 
 void doIt() {
     short Direction = NORTH;
-    bool visited[17][17], matrix[257][257];
 
     for (short i = 1; i < 17; ++i) {
         for (short j = 1; j < 17; ++j) {
@@ -305,10 +307,10 @@ void doIt() {
         }
     }
     for (short i = 0; i < 257; ++i) {
-        for (short j = 0; j < 257; ++j) {
+        for (short j = 0; j < 4; ++j) {
             matrix[i][j] = false;
         }
     }
-    floodFill(16, 1, Direction, visited, matrix);
-    BFS(241, 120, Direction, matrix);
+    floodFill(16, 1, Direction);
+    BFS(241, 120, Direction);
 }

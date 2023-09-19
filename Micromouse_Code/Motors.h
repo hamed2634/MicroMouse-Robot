@@ -4,12 +4,12 @@
 #include "lib.h"
 
 //Motors Variables
-#define ENA 6
-#define ENB 5
-#define IN4 10
-#define IN3 9
-#define IN2 8
-#define IN1 7
+#define ENA 5
+#define ENB 6
+#define IN4 7
+#define IN3 8
+#define IN2 9
+#define IN1 10
 
 //Motors Speeds
 #define MAXSPEED 255
