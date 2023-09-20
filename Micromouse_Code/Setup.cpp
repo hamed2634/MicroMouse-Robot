@@ -1,15 +1,16 @@
 #include "Setup.h"
 extern float LastTime;
 //pins initialize
-
-void PinsInitialize(){
+extern char Wall_Readings;
+void PinsInitialize() {
+  // Encoder
   pinMode(Encoder, INPUT);
 
-  pinMode(RightFatalSensor, INPUT);
-  pinMode(LeftFatalSensor, INPUT);
-  //pinMode(RightSensor, INPUT);
-  //pinMode(LeftSensor, INPUT);
+  // //Fatalsensors
+  // pinMode(RightFatalSensor, INPUT);
+  // pinMode(LeftFatalSensor, INPUT);
 
+  //ControlMotors
   pinMode(ENA, OUTPUT);
   pinMode(ENB, OUTPUT);
   pinMode(IN1, OUTPUT);
@@ -18,10 +19,9 @@ void PinsInitialize(){
   pinMode(IN4, OUTPUT);
 }
 
-
-void setup() 
-{
+void setup()  {
   Serial.begin(115200);
+  //while(Serial.read() != 's');
   PinsInitialize();
   GyroScopeInit();
 
@@ -32,8 +32,10 @@ void setup()
   //   // delay(2000);
   // }
 
-
   //attachInterrupt(digitalPinToInterrupt(LeftEncoder),LeftPulse,RISING);
   //attachInterrupt(digitalPinToInterrupt(RightEncoder),RightPulse,RISING);
+  setbit(Wall_Readings,3);
+  forward();
+  //MoveFromStartToCenter();
   LastTime = millis();
 }

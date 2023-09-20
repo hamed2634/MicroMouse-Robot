@@ -12,9 +12,9 @@
 #define IN1 10
 
 //Motors Speeds
-#define MAXSPEED 255
+#define MAXSPEED 150
 #define MAXTURNSPEED 150
-#define INITIALSPEED 255
+#define INITIALSPEED 150
 
 void forward();
 
@@ -24,8 +24,8 @@ void stop();
 
 void StopSlowly();
 
-void AddToRightSpeed(float, int);
+void AddToRightSpeed(float, short);
 
-void AddToLeftSpeed(float, int);
+void AddToLeftSpeed(float, short);
 
 #endif

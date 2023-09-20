@@ -2,9 +2,8 @@
 
 float RightSpeed = INITIALSPEED, LeftSpeed = INITIALSPEED;
 
-//Control Functions
-void stop()
-{
+// Control Functions
+void stop() {
   analogWrite(ENA, 0);
   analogWrite(ENB, 0);
   digitalWrite(IN1, LOW);
@@ -15,8 +14,7 @@ void stop()
   RightSpeed = 0;
 }
 
-void forward()
-{
+void forward() {
   //Right
   analogWrite(ENA, INITIALSPEED);
   digitalWrite(IN1, LOW);
@@ -30,8 +28,7 @@ void forward()
   RightSpeed = INITIALSPEED;
 }
 
-void StopSlowly()
-{
+void StopSlowly() {
   //Right
   analogWrite(ENA, 100);
   digitalWrite(IN1, LOW);
@@ -45,8 +42,7 @@ void StopSlowly()
   RightSpeed = 100;
 }
 
-void backward()
-{
+void backward() {
   //Right
   analogWrite(ENA, abs(INITIALSPEED));
   digitalWrite(IN1, HIGH);
@@ -60,18 +56,18 @@ void backward()
   RightSpeed = -100;
 }
 
-void AddToRightSpeed(float OUT, int maxspeed){
-  //speed
-  int LastSpeed = RightSpeed;
+void AddToRightSpeed(float OUT, short maxspeed) {
+
+  short LastSpeed = RightSpeed;
   RightSpeed += OUT;
   RightSpeed = min(RightSpeed, maxspeed);
   RightSpeed = max(RightSpeed, -maxspeed);
-  if(RightSpeed * LastSpeed <= 0){
-      if(RightSpeed < 0){
+  if(RightSpeed * LastSpeed <= 0) {
+      if(RightSpeed < 0) {
       digitalWrite(IN1, HIGH);
       digitalWrite(IN2, LOW);
     }
-    else{
+    else {
       digitalWrite(IN1, LOW);
       digitalWrite(IN2, HIGH);
     }
@@ -79,17 +75,18 @@ void AddToRightSpeed(float OUT, int maxspeed){
   analogWrite(ENA, (int)fabs(RightSpeed));
 }
 
-void AddToLeftSpeed(float OUT, int maxspeed){
-  int LastSpeed = LeftSpeed;
+
+void AddToLeftSpeed(float OUT, short maxspeed) {
+  short LastSpeed = LeftSpeed;
   LeftSpeed += OUT;
   LeftSpeed = min(LeftSpeed, maxspeed);
   LeftSpeed = max(LeftSpeed, -maxspeed);
   if(LeftSpeed * LastSpeed <= 0) {
-    if(LeftSpeed < 0){
+    if(LeftSpeed < 0) {
       digitalWrite(IN3, HIGH);
       digitalWrite(IN4, LOW);
     }
-    else{
+    else {
       digitalWrite(IN3, LOW);
       digitalWrite(IN4, HIGH);
     }

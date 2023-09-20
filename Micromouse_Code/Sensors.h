@@ -1,51 +1,50 @@
 #ifndef SENSORS_H
-  #define SENSORS_H
+#define SENSORS_H
 
-  //-----------  A5 - SCL ;  A4 - SDA; interupt 2;
+#include "lib.h"
 
-  #include "lib.h"
+// Macro to functions (bitset)
+#define getbit(x,i) (1 & (x >> i))
+#define setbit(x,i) (x |= (1 << i))
+#define clrbit(x,i) (x &= ~(1 << i))
 
-  #define getbit(x,i) (1 & (x >> i))
-  #define setbit(x,i) (x |= (1 << i))
-  #define clrbit(x,i) (x &= ~(1 << i))
+// Encoders variables
+#define Encoder 12
+
+// IR Sensors variables
+#define RightFatalSensor 4 
+#define LeftFatalSensor 1
+
+// UltraSonic variables
+#define MAX_MEASURED_DISTANCE 288
+#define LeftTrigger A2
+#define LeftEcho A3
+#define FrontTrigger 11
+#define FrontEcho 3
+#define RightTrigger A0
+#define RightEcho A1
+#define MAX_ALLOWED_Vert_DISTANCE 5
+#define MAX_ALLOWED_Horiz_DISTANCE 16
 
 
+void GyroScopeInit();
 
-  //Encoders variables
-  #define Encoder 3
+void ReadGyro();
 
-  //IR Sensors variables
-  #define FrontSensor 12
-  #define RightFatalSensor 4 
-  #define LeftFatalSensor 11
-  #define RightSensor 0
-  #define LeftSensor 1 
+void ReadEncoder();
 
-  //UltraSonic variables
-  //UltraSonic
-  #define MAX_MEASURED_DISTANCE 288
-  #define TRIGGER A0
-  #define ECHO A1
-  #define MAX_ALLOWED_DISTANCE 5
+void ReadIR();
 
-  void GyroScopeInit();
+void ReadUltra();
 
-  //ALL SENSORS READINGS
-  void ReadGyro();
+bool wallFront();
 
-  void ReadEncoder();
+bool wallRight();
 
-  void ReadIR();
+bool wallLeft();
 
-  void ReadUltra();
+float GetDistance();
 
-  bool wallFront();
-
-  bool wallRight();
-
-  bool wallLeft();
-
-  float GetDistance();
+void ReadWallsUltra();
 
 #endif
-

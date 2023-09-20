@@ -10,79 +10,84 @@ extern float RightSpeed , LeftSpeed;
 
 void MoveStraight() {
 
-    /*              FeedForward             */
-    int DesiredSpeed = 255;
-    float KpSpeed = 0.01;
-    float SpeedError = DesiredSpeed - (LeftSpeed + RightSpeed)/2.0;
+    // /*              FeedForward             */
+    // int DesiredSpeed = 255;
+    // float KpSpeed = 0.01;
+    // float SpeedError = DesiredSpeed - (LeftSpeed + RightSpeed)/2.0;
 
-    int SpeedOutput = KpSpeed * SpeedError;
+    int SpeedOutput = 0;
 
     /*        PID On Angle -- PD Controller         */
-    float kpAng = 0.1, kdAng = 12, AngleOutput = 0, AngleError = DesiredAngle - AngleZ;
+    float kpAng = 0.07, kdAng = 7, AngleOutput = 0, AngleError = DesiredAngle - AngleZ;
     AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ;
 
     AddToRightSpeed(SpeedOutput + AngleOutput,MAXSPEED);
     AddToLeftSpeed(SpeedOutput + -1 * AngleOutput, MAXSPEED);
 
     LastAngleError = AngleError;
-    // Debug5(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
+    //Debug5(AngleZ, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
 }
 
 
 void TurnRight() {
-    StopSlowly();
+
+    StopSlowly(); // decrease speed to turn smooth
 
     DesiredAngle -= 90 * GyroRatio;
     float AngleError = DesiredAngle - AngleZ;
 
-    while(fabs(AngleError) > 1){
+    while(fabs(AngleError) > 1) {
         ReadGyro();
-        //pid On angle -- pcontroller
-        //float kpAng = 0.2, kdAng = 10;
-        //float kpAng = 0.05, kdAng = 5;
-        float kpAng = 0.15, kdAng = 15;
+        /*          pid On angle -- pcontroller            */
+        // float kpAng = 0.2, kdAng = 10;
+        float kpAng = 0.05, kdAng = 5; // best const..
+        // float kpAng = 0.15, kdAng = 15;
         AngleError = DesiredAngle - AngleZ;
-        float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+        float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ;
         AddToRightSpeed(AngleOutput,MAXTURNSPEED);
-        //left += Output
         AddToLeftSpeed(-1 * AngleOutput,MAXTURNSPEED);
         LastAngleError = AngleError;
-        //Debug5(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
+        // Debug5(z, DesiredAngle, LeftSpeed , RightSpeed , AngleOutput);
     }
+
     forward();
 }
 
-void TurnLeft(){
-    stop();
+void TurnLeft() {
+
+  StopSlowly(); // decrease speed to turn smooth
+
     DesiredAngle += 90 * GyroRatio;
     float AngleError = DesiredAngle - AngleZ;
-    while(fabs(AngleError) > 1){
+    
+    while(fabs(AngleError) > 1) {
         ReadGyro();
-        //pid On angle -- pcontroller
+        /*          pid On angle -- pcontroller            */
         float kpAng = 0.05  , kdAng = 5;
         AngleError = DesiredAngle - AngleZ;
         float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
         AddToRightSpeed(AngleOutput, MAXTURNSPEED);
-        //left += Output
         AddToLeftSpeed(-1 * AngleOutput, MAXTURNSPEED);
         LastAngleError = AngleError;
         //Debug5(z,DesiredAngle,AngleError, LeftSpeed - AngleOutput, RightSpeed + AngleOutput);
     }
+
     forward();
 }
 
 void TurnAround(){
-    stop();
+    StopSlowly();
+
     DesiredAngle += 180 * GyroRatio;
     float AngleError = DesiredAngle - AngleZ;
+
     while(fabs(AngleError) > 1){
         ReadGyro();
-        //pid On angle -- pcontroller
-        float kpAng = 0.1  , kdAng = 0;
+        /*          pid On angle -- pcontroller            */
+        float kpAng = 0.01  , kdAng = 0.1;
         AngleError = DesiredAngle - AngleZ;
-        float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ; // negative
+        float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ;
         AddToRightSpeed(AngleOutput, MAXTURNSPEED);
-        //left += Output
         AddToLeftSpeed(-1 * AngleOutput, MAXTURNSPEED);
         LastAngleError = AngleError;
         //Debug5(z,DesiredAngle,AngleError, LeftSpeed - AngleOutput, RightSpeed + AngleOutput);
@@ -94,20 +99,19 @@ void TurnAround(){
 void MoveCellForward(){
     Count = 0;
     bool Sensed = 0;
-    while(GetDistance() > CellWidth){
+    while(GetDistance() < CenterToCenter){
         ReadGyro();
         ReadEncoder();
         MoveStraight();
         if(!Sensed && GetDistance() > CenterToSensing) {
-            ReadIR();
-            ReadUltra();
+            ReadWallsUltra();
             Sensed = 1;
         }
     }
     return;
 }
 
-void MoveToCenter(){
+void MoveFromStartToCenter(){
     Count = 0;
     while(GetDistance() > StartToCenter){
         ReadGyro();
@@ -123,4 +127,44 @@ void AdjustAlignment() {
     delay(200);
     MoveToCenter();
     return;
+}
+
+void MoveFromCenterToSensing(){
+  Count = 0;
+  while(GetDistance() < CenterToSensing){
+    ReadGyro();
+    ReadEncoder();
+    MoveStraight();
+  }
+}
+
+void MoveFromSensingToCenter(){
+  Count = 0;
+  while(GetDistance() < SensingToCenter){
+    ReadGyro();
+    ReadEncoder();
+    MoveStraight();
+  }
+}
+
+void BrakeFromSensingToCenter(){
+  Count = 0;
+  while(GetDistance() < 6.5){
+    ReadGyro();
+    ReadEncoder();
+    MoveStraight();
+  }
+  stop();
+  Count = 0;
+  // while(GetDistance() < SensingToCenter){
+  //   ReadGyro();
+  //   ReadEncoder();
+  //   static float LastDistanceError = 0;
+  //   float Kp = 0, Kd = 93.75;
+  //   float DistanceError = SensingToCenter - GetDistance();
+  //   float DistanceOutput = Kp * DistanceError + Kd * (DistanceError - LastDistanceError); 
+  //   LastDistanceError = DistanceError;
+  //   AddToLeftSpeed(DistanceOutput,MAXSPEED);
+  //   AddToRightSpeed(DistanceOutput,MAXSPEED);
+  // }
 }

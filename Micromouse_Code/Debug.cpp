@@ -1,16 +1,16 @@
 #include "Debug.h"
 
-void Debug(float a){
+void Debug(float a) {
   Serial.println(a);
 }
 
-void Debug2(float a,float b){
+void Debug2(float a,float b) {
   Serial.print(a);
   Serial.print(" ");
   Serial.println(b);
 }
 
-void Debug3(float a,float b, float c){
+void Debug3(float a,float b, float c) {
   Serial.print(a);
   Serial.print(" ");
   Serial.print(b);
@@ -18,7 +18,7 @@ void Debug3(float a,float b, float c){
   Serial.println(c);
 }
 
-void Debug4(float a,float b, float c, float d){
+void Debug4(float a,float b, float c, float d) {
   Serial.print(a);
   Serial.print(" ");
   Serial.print(b);
@@ -28,7 +28,7 @@ void Debug4(float a,float b, float c, float d){
   Serial.println(d);
 }
 
-void Debug5(float a,float b, float c, float d, float e){
+void Debug5(float a,float b, float c, float d, float e) {
   Serial.print(a);
   Serial.print(" ");
   Serial.print(b);
@@ -40,7 +40,7 @@ void Debug5(float a,float b, float c, float d, float e){
   Serial.println(e);
 }
 
-void Debug6(float a,float b, float c, float d, float e, float f){
+void Debug6(float a,float b, float c, float d, float e, float f) {
   Serial.print(a);
   Serial.print(" ");
   Serial.print(b);
@@ -53,7 +53,7 @@ void Debug6(float a,float b, float c, float d, float e, float f){
   Serial.print(" ");
   Serial.println(f);
 }
-void Debug7(float a, float b, float c, float d, float e, float f, float g){
+void Debug7(float a, float b, float c, float d, float e, float f, float g) {
   Serial.print(a);
   Serial.print(" ");
   Serial.print(b);
