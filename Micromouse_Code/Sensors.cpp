@@ -18,7 +18,7 @@ NewPing FrontUltra = NewPing(FrontTrigger, FrontEcho, MAX_MEASURED_DISTANCE);
 NewPing RightUltra = NewPing(RightTrigger, RightEcho, MAX_MEASURED_DISTANCE);
 
 
-char Wall_Readings; // L - L45 - F - R45 - R
+char Wall_Readings = 0, FatalReadings = 0;      // L _ F _ R       // L _ R
 
 // GYROSCOPE INITIALIZE
 void GyroScopeInit() {
@@ -57,17 +57,11 @@ void ReadEncoder() {
 }
 
 void ReadIR() {
-  if(!digitalRead(LeftFatalSensor)) setbit(Wall_Readings, 0);
-  else clrbit(Wall_Readings, 0);
+  if(!digitalRead(LeftFatalSensor)) setbit(FatalReadings, 0);
+  else clrbit(FatalReadings, 0);
 
-  // if(!digitalRead(LeftSensor)) setbit(Wall_Readings,1);
-  // else clrbit(Wall_Readings,1);
-
-  // if(!digitalRead(RightSensor)) setbit(Wall_Readings,3);
-  // else clrbit(Wall_Readings,3);
-
-  if(!digitalRead(RightFatalSensor)) setbit(Wall_Readings, 4);
-  else clrbit(Wall_Readings, 4);
+  if(!digitalRead(RightFatalSensor)) setbit(FatalReadings, 1);
+  else clrbit(FatalReadings, 1);
 }
 
 
@@ -98,4 +92,10 @@ float GetDistance() {
   return Count/40.0 * 3.94*PI;
 }
 
+bool GetRightFatal() {
+  return getbit(FatalReadings,1);
+}
 
+bool GetLeftFatal() {
+  return getbit(FatalReadings,0);
+}

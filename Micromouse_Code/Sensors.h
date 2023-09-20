@@ -47,4 +47,8 @@ float GetDistance();
 
 void ReadWallsUltra();
 
+bool GetLeftFatal();
+
+bool GetRightFatal()
+
 #endif
