@@ -6,9 +6,10 @@ void PinsInitialize() {
   // Encoder
   pinMode(Encoder, INPUT);
 
-  // //Fatalsensors
-  // pinMode(RightFatalSensor, INPUT);
-  // pinMode(LeftFatalSensor, INPUT);
+
+  //Fatalsensors
+  pinMode(RightFatalSensor, INPUT);
+  pinMode(LeftFatalSensor, INPUT);
 
   //ControlMotors
   pinMode(ENA, OUTPUT);
@@ -24,18 +25,8 @@ void setup()  {
   //while(Serial.read() != 's');
   PinsInitialize();
   GyroScopeInit();
-
-  // while(1){
-  //   forward();
-  //   delay(2000);
-  //   // backward();
-  //   // delay(2000);
-  // }
-
-  //attachInterrupt(digitalPinToInterrupt(LeftEncoder),LeftPulse,RISING);
-  //attachInterrupt(digitalPinToInterrupt(RightEncoder),RightPulse,RISING);
   setbit(Wall_Readings,3);
   forward();
-  //MoveFromStartToCenter();
+  MoveFromStartToCenter();
   LastTime = millis();
 }

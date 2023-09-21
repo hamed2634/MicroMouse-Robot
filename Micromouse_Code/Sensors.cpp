@@ -16,9 +16,10 @@ volatile int Count = 0;
 NewPing LeftUltra = NewPing(LeftTrigger, LeftEcho, MAX_MEASURED_DISTANCE); // Each sensor's trigger pin, echo pin, and max distance to ping.
 NewPing FrontUltra = NewPing(FrontTrigger, FrontEcho, MAX_MEASURED_DISTANCE);
 NewPing RightUltra = NewPing(RightTrigger, RightEcho, MAX_MEASURED_DISTANCE);
+int UltraTimer = 0;
 
 
-char Wall_Readings = 0, FatalReadings = 0;      // L _ F _ R       // L _ R
+char Wall_Readings = 0, FatalReadings = 0; // L - L45 - F - R45 - R
 
 // GYROSCOPE INITIALIZE
 void GyroScopeInit() {
@@ -88,6 +89,9 @@ bool wallLeft() {
   return getbit(Wall_Readings,1);
 }
 
+float AccDistance(float x){
+  return  x/0.973 - 3.3985/0.973;
+}
 float GetDistance() {
   return Count/40.0 * 3.94*PI;
 }
@@ -99,3 +103,4 @@ bool GetRightFatal() {
 bool GetLeftFatal() {
   return getbit(FatalReadings,0);
 }
+

@@ -6,19 +6,19 @@ extern float AngleZ, ZError; // declare Z, ZError to assign Angle of yaw and err
 float LastAngleError = 0, DesiredAngle = 0;
 extern volatile int Count; 
 extern float RightSpeed , LeftSpeed;
-
+int FatalSensorTimer = 0;
 
 void MoveStraight() {
 
     // /*              FeedForward             */
-    // int DesiredSpeed = 255;
-    // float KpSpeed = 0.01;
-    // float SpeedError = DesiredSpeed - (LeftSpeed + RightSpeed)/2.0;
+    int DesiredSpeed = 125;
+    float KpSpeed = 0.05;
+    float SpeedError = DesiredSpeed - (LeftSpeed + RightSpeed)/2.0;
 
-    int SpeedOutput = 0;
+    int SpeedOutput = KpSpeed * SpeedError;
 
     /*        PID On Angle -- PD Controller         */
-    float kpAng = 0.07, kdAng = 7, AngleOutput = 0, AngleError = DesiredAngle - AngleZ;
+    float kpAng = 0.03, kdAng = 5, AngleOutput = 0, AngleError = DesiredAngle - AngleZ;
     AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ;
 
     AddToRightSpeed(SpeedOutput + AngleOutput,MAXSPEED);
@@ -36,11 +36,12 @@ void TurnRight() {
     DesiredAngle -= 90 * GyroRatio;
     float AngleError = DesiredAngle - AngleZ;
 
-    while(fabs(AngleError) > 1) {
+    while(fabs(AngleError) > 10) {
         ReadGyro();
         /*          pid On angle -- pcontroller            */
         // float kpAng = 0.2, kdAng = 10;
         float kpAng = 0.05, kdAng = 5; // best const..
+        //float kpAng = 0.03, kdAng = 5; 
         // float kpAng = 0.15, kdAng = 15;
         AngleError = DesiredAngle - AngleZ;
         float AngleOutput = kpAng * AngleError + kdAng * (AngleError - LastAngleError) ;
@@ -97,23 +98,17 @@ void TurnAround(){
 
 
 void MoveCellForward(){
-    Count = 0;
-    bool Sensed = 0;
-    while(GetDistance() < CenterToCenter){
-        ReadGyro();
-        ReadEncoder();
+    int Timer = 0;
+    while(Timer < 1500){
         MoveStraight();
-        if(!Sensed && GetDistance() > CenterToSensing) {
-            ReadWallsUltra();
-            Sensed = 1;
-        }
+        Timer++;
     }
     return;
 }
 
 void MoveFromStartToCenter(){
     Count = 0;
-    while(GetDistance() > StartToCenter){
+    while(GetDistance() < StartToCenter){
         ReadGyro();
         ReadEncoder();
         MoveStraight();
@@ -149,7 +144,7 @@ void MoveFromSensingToCenter(){
 
 void BrakeFromSensingToCenter(){
   Count = 0;
-  while(GetDistance() < 6.5){
+  while(GetDistance() < AccDistance(SensingToCenter)){
     ReadGyro();
     ReadEncoder();
     MoveStraight();
@@ -167,4 +162,19 @@ void BrakeFromSensingToCenter(){
   //   AddToLeftSpeed(DistanceOutput,MAXSPEED);
   //   AddToRightSpeed(DistanceOutput,MAXSPEED);
   // }
+}
+
+void ControlFatalsensors() {
+  FatalSensorTimer++;
+  if(FatalSensorTimer > 100){
+      ReadIR();
+    if(GetLeftFatal() && !GetRightFatal()) {
+      DesiredAngle -= 5 * GyroRatio;
+    }
+    if(GetRightFatal() && !GetLeftFatal()) {
+      DesiredAngle += 5 * GyroRatio;
+    }
+    FatalSensorTimer = 0;
+  }
+  //Debug2(GetLeftFatal(), GetRightFatal());
 }

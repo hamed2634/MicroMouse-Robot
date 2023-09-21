@@ -12,8 +12,8 @@
 #define Encoder 12
 
 // IR Sensors variables
-#define RightFatalSensor 4 
-#define LeftFatalSensor 1
+#define RightFatalSensor 1 
+#define LeftFatalSensor 4
 
 // UltraSonic variables
 #define MAX_MEASURED_DISTANCE 288
@@ -23,7 +23,7 @@
 #define FrontEcho 3
 #define RightTrigger A0
 #define RightEcho A1
-#define MAX_ALLOWED_Vert_DISTANCE 5
+#define MAX_ALLOWED_Vert_DISTANCE 18
 #define MAX_ALLOWED_Horiz_DISTANCE 16
 
 
@@ -47,8 +47,10 @@ float GetDistance();
 
 void ReadWallsUltra();
 
+float AccDistance(float x);
+
 bool GetLeftFatal();
 
-bool GetRightFatal()
+bool GetRightFatal();
 
 #endif

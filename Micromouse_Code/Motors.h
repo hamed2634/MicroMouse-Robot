@@ -12,9 +12,9 @@
 #define IN1 10
 
 //Motors Speeds
-#define MAXSPEED 150
+#define MAXSPEED 125
 #define MAXTURNSPEED 150
-#define INITIALSPEED 150
+#define INITIALSPEED 125
 
 void forward();
 

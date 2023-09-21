@@ -8,8 +8,8 @@
 
 #define CenterToCenter 14
 #define CenterToSensing  11.7
-#define SensingToCenter 8
-#define StartToCenter 2.5
+#define SensingToCenter 7
+#define StartToCenter 2
 
 void MoveStraight();
 
@@ -32,5 +32,7 @@ void MoveFromStartToCenter();
 void BrakeFromSensingToCenter();
 
 void MoveFromSensingToCenter();
+
+void ControlFatalsensors();
 
 #endif

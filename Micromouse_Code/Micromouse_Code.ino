@@ -1,35 +1,49 @@
 #include "Micromouse_Code.h"
-
 extern int Count;
-bool turned = 0, turn2 = 0, Sensed = 0;
+bool turned = 0;
+bool turn2 = 0;
+bool Sensed = 0;
 extern NewPing LeftUltra,RightUltra,FrontUltra;
 extern float AngleZ;
-int ping = 20, timer = 0;
+int ping = 20;
 
 void loop() {
-
-  ReadGyro();
-  ReadIR();
-  MoveStraight();
-  ReadEncoder();
-  if(GetDistance() > 50) {
-    stop();
-    delay(5000000);
+  MoveFromCenterToSensing();
+  ReadWallsUltra();
+  if(wallRight() && wallFront() && wallLeft()) {
+    TurnLeft();
+    TurnLeft();
+    BrakeFromSensingToCenter();
+  }
+  else if(wallRight() && wallFront()){
+    BrakeFromSensingToCenter();
+    TurnLeft();
+  }
+  else if(wallRight()){
+    BrakeFromSensingToCenter();
+  }
+  else {
+    BrakeFromSensingToCenter();
+    TurnRight();
   }
 
-//  MoveStraight();
-    // ReadEncoder();
-    // Serial.print(Count);
-    // Serial.print(" ");
-    // Serial.println(GetDistance());
-    // if(Serial.available()){
-    //   Serial.read();
-    //   Count = 0;
-    // }
 
-  // MoveFromStartToCenter();
+
   // MoveFromCenterToSensing();
+  // ReadWallsUltra();
   // BrakeFromSensingToCenter();
+  // TurnRight();
+  // MoveFromCenterToSensing();
+  // ReadWallsUltra();
+  // BrakeFromSensingToCenter();
+  // TurnLeft();
+  // MoveFromCenterToSensing();
+  // ReadWallsUltra();
+  // BrakeFromSensingToCenter();
+  // stop();
+  // delay(500000000);
+
+
   // forward();
   //  MoveFromSensingToCenter();
   // BrakeFromSensingToCenter();
@@ -49,7 +63,7 @@ void loop() {
 
 
 
-  timer++;
+  //timer++;
   //doIt();
   // ReadGyro();
   // ReadEncoder();
@@ -124,6 +138,22 @@ void loop() {
 
 
 
+  // ReadGyro();
+  // MoveStraight();
+  // ReadWallsUltra();
+  // if(wallRight()) {
+  //   if(wallFront()) { 
+  //     TurnLeft();
+  //     MoveCellForward();
+  //   }
+  //   else {
+  //     MoveStraight();
+  //   }
+  // }
+  // else {
+  //   TurnRight();
+  //   MoveCellForward();
+  // }
 
 
 
@@ -131,34 +161,27 @@ void loop() {
 
 
 
-  /* Check Fatal Sensors
 
-   Serial.print(GetRightFatal());
-   Serial.print(" ");
-   Serial.print(GetLeftFatal());
-   Serial.print(" ");
+  // ReadEncoder();
+  // if(GetDistance() > 70) {
+  //   stop();
+  //   delay(5000000);
+  // }
+
+//  MoveStraight();
+    // ReadEncoder();
+    // Serial.print(Count);
+    // Serial.print(" ");
+    // Serial.println(GetDistance());
+    // if(Serial.available()){
+    //   Serial.read();
+    //   Count = 0;
+    // }
+
+
+
   
-   */
-
-   /*
-    while (1) {
-
-        //if( Reached Goal) break;
-
-        if(wallLeft()) {
-            if(wallFront()) {
-                turnRight();
-            }
-            else {
-                moveForward();
-            }
-        }
-        else {
-            turnLeft();
-            moveForward();
-        }
-    }
-    */
+  
 
 
 }
