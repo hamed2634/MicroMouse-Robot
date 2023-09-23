@@ -59,7 +59,7 @@ Drive the wheels for movement.
 
 Provides stability and maneuverability during turns.
 
-### Gyroscope
+### Gyroscope (MPU6050)
 ![Gyroscope](media/gyroscope_image.jpg)
 
 Measures angles and helps maintain orientation for accurate navigation.
@@ -70,7 +70,7 @@ Measures angles and helps maintain orientation for accurate navigation.
 
 #### Angle Control with PD System
 
-We've implemented a PD (Proportional-Derivative) control system for angle control using the Gyroscope as the feedback element. The primary goal of this system is to keep the robot moving in a straight line and execute precise 90-degree turns when needed.
+We've implemented a PD (Proportional-Derivative) control system for angle control using the Gyroscope (MPU6050) as the feedback element. The primary goal of this system is to keep the robot moving in a straight line and execute precise 90-degree turns when needed.
 
 - **Proportional (P):** The proportional part of the controller ensures that the desired angle remains static, allowing the robot to move in a straight line.
 
@@ -79,6 +79,8 @@ We've implemented a PD (Proportional-Derivative) control system for angle contro
 - **Derivative (D):** The derivative part helps fine-tune the turning process.
 
    Functionality: Tuning D affects how the robot responds to deviations in the angle, contributing to stable and precise turns.
+
+For graphs and visualizations of the tuning process, please click [here](Testing\PID_CALC) to access the response graphs.
 
 #### Sensor Reading
 
