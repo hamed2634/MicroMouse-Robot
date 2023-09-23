@@ -46,6 +46,10 @@ The wheels of the robot.
 
 ### 3D Design
 
+We have designed a custom 3D chassis for the robot. Here's a photo of our 3D design:
+
+![3D Design](media/3d_design_image.jpg)
+
 ### Bluetooth Module
 ![Bluetooth Module](media/bluetooth_image.jpg)
 
