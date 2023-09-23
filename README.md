@@ -37,10 +37,12 @@ Detects lines and walls for precise navigation in mazes.
 
 Tracks wheel movements for accurate control.
 
-### Wheels and Chassis
+### Wheels 
 ![Wheels and Chassis](media/wheels_image.jpg)
 
-The physical structure and drive system of the robot.
+The wheels of the robot.
+
+### 3D Design
 
 ### Bluetooth Module
 ![Bluetooth Module](media/bluetooth_image.jpg)
