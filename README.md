@@ -22,6 +22,8 @@ The Micromouse project utilizes the following hardware components:
 
 The central control hub that connects and manages all other components.
 
+You can find all details and schematic [Here](https://oshwlab.com/om4rr/micromouse).
+
 ### Ultrasonic Sensor
 ![Ultrasonic Sensor](media/ultrasonic_image.jpg)
 
@@ -80,7 +82,7 @@ We've implemented a PD (Proportional-Derivative) control system for angle contro
 
    Functionality: Tuning D affects how the robot responds to deviations in the angle, contributing to stable and precise turns.
 
-For graphs and visualizations of the tuning process, please click [here](Testing/PID_CALC) to access the response graphs.
+For graphs and visualizations of the tuning process, please click [Testing\PID_CALC](Testing\PID_CALC) to access the response graphs.
 
 #### Sensor Reading
 
