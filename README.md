@@ -86,7 +86,7 @@ We've implemented a PD (Proportional-Derivative) control system for angle contro
 
    Functionality: Tuning D affects how the robot responds to deviations in the angle, contributing to stable and precise turns.
 
-For graphs and visualizations of the tuning process, please click [Testing\PID_CALC](Testing\PID_CALC) to access the response graphs.
+For graphs and visualizations of the tuning process, please click [Testing/PID_CALC](Testing/PID_CALC) to access the response graphs.
 
 #### Sensor Reading
 
