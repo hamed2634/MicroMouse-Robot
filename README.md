@@ -102,7 +102,7 @@ By combining precise angle control and sensor readings, our robot can successful
 
 ### Algorithms
 
-The general idea for the algorithm that it discovers the whole maze and collect the data needed to configure the shortest path.
+The general idea for the algorithm that it discovers the whole maze using floodfill algorithm and collect the data needed to configure the shortest path using bfs.
 The code is provided with comments to explain in details this approach.
 
 ## Installation
