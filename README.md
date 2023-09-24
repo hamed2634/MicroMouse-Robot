@@ -102,7 +102,8 @@ By combining precise angle control and sensor readings, our robot can successful
 
 ### Algorithms
 
-[Describe the algorithms used for maze-solving and navigation.]
+The general idea for the algorithm that it discovers the whole maze and collect the data needed to configure the shortest path.
+The code is provided with comments to explain in details this approach.
 
 ## Installation
 
