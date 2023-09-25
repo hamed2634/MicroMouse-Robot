@@ -105,6 +105,15 @@ By combining precise angle control and sensor readings, our robot can successful
 The general idea for the algorithm that it discovers the whole maze using floodfill algorithm and collect the data needed to configure the shortest path using bfs.
 The code is provided with comments to explain in details this approach.
 
+#### Maze Stimulation
+
+You can watch a maze simulation in action below:
+
+
+https://github.com/hamed2634/MicroMouse-Robot/assets/52867472/5dad4e3b-37f2-4e1f-a091-5508377ebc72
+
+
+
 ## Installation
 
 1. You can download the latest version of the Micromouse project as a ZIP file by clicking [here](link_to_zip_file.zip).
