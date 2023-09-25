@@ -109,10 +109,10 @@ The code is provided with comments to explain in details this approach.
 
 You can watch a maze simulation in action below:
 
-<video width="320" height="240" controls>
-  <source src="Stimulation/Maze1.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+
+https://github.com/hamed2634/MicroMouse-Robot/assets/52867472/5dad4e3b-37f2-4e1f-a091-5508377ebc72
+
+
 
 ## Installation
 
