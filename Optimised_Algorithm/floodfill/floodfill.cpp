@@ -150,10 +150,13 @@ void updateCoordinates(short Direction, short Wall, short x, short y, short &toX
 void floodFill(short x, short y, short &Direction, bool visited[][17], short data[]) {
     visited[x][y] = true;
 
+    // give the cell its ID node
     short node = (short) ( (x - 1) * 16 + y );
 
+    // assign the direction entered the cell with to save the state as we need it later
     data[node] = (short) (data[node] | Direction);
 
+    // assign open walls for the cell
     data[node] |= BACK;
     if (! API::wallFront()) {
         data[node] |= FRONT;
@@ -167,11 +170,17 @@ void floodFill(short x, short y, short &Direction, bool visited[][17], short dat
 
     short toX, toY;
 
+    /* We ask the SAME question many time because when the car comes back to the cell
+     * it may have different direction so the direction of the walls change */
+
     if (! API::wallFront()) {
+        // get the coordinates that we are going to
         updateCoordinates(Direction, 1, x, y, toX, toY);
         if (! visited[toX][toY]) {
+            // the move function is just an implementation to move from cell to cell with different directions
             move(Direction, x, y, toX, toY);
             floodFill(toX, toY, Direction, visited, data);
+            // to come back == the return.
             move(Direction, toX, toY, x, y);
         }
     }
@@ -266,11 +275,11 @@ short getDirection(short data) {
 }
 
 
-void getAvailable(short data, short Direction, short x, short y, bool visited[], short depth[], short parent[], std::queue<short> &q) {
+void getAvailable(short data, short Direction, short x, short y, bool visited[], short parent[], std::queue<short> &q) {
     short from = (x - 1) * 16 + y;
 
-    short to, toX, toY;
-
+    short to, toX = 0, toY = 0;
+	
     if (data & FRONT) {
         switch (Direction) {
             case NORTH:
@@ -289,10 +298,10 @@ void getAvailable(short data, short Direction, short x, short y, bool visited[],
                 break;
         }
         to = (toX - 1) * 16 + toY;
-        if (depth[to] == -1) {
+        if (!visited[to]) {
             q.push(to);
             parent[to] = from;
-            depth[to] = depth[from] + 1;
+			visited[to] = 1;
         }
     }
 
@@ -314,10 +323,10 @@ void getAvailable(short data, short Direction, short x, short y, bool visited[],
                 break;
         }
         to = (toX - 1) * 16 + toY;
-        if (depth[to] == -1) {
+        if (!visited[to]) {
             q.push(to);
             parent[to] = from;
-            depth[to] = depth[from] + 1;
+			visited[to] = 1;
         }
     }
 
@@ -339,10 +348,10 @@ void getAvailable(short data, short Direction, short x, short y, bool visited[],
                 break;
         }
         to = (toX - 1) * 16 + toY;
-        if (depth[to] == -1) {
+        if (!visited[to]) {
             q.push(to);
             parent[to] = from;
-            depth[to] = depth[from] + 1;
+			visited[to] = 1;
         }
     }
 
@@ -364,10 +373,10 @@ void getAvailable(short data, short Direction, short x, short y, bool visited[],
                 break;
         }
         to = (toX - 1) * 16 + toY;
-        if (depth[to] == -1) {
+        if (!visited[to]) {
             q.push(to);
             parent[to] = from;
-            depth[to] = depth[from] + 1;
+			visited[to] = 1;
         }
     }
 }
@@ -377,20 +386,19 @@ void BFS(short source, short target, short Direction, short data[]) {
     std::queue<short> q;
 
     bool visited[257];
-    short depth[257], parent[257];
+    short parent[257];
     for (short i = 0; i < 257; ++i) {
         visited[i] = false;
     }
     for (short i = 0; i < 257; ++i) {
-        depth[i] = parent[i] = -1;
+        parent[i] = -1;
     }
 
     q.push(source);
-    depth[source] = 0;
     visited[source] = true;
 
-    for (short d = 0, length = (short) q.size(), a, b; ! q.empty() && depth[target] == -1; ++d, length = (short) q.size()) {
-        while (length-- && depth[target] == -1) {
+    for (short d = 0, length = (short) q.size(), a, b; ! q.empty(); ++d, length = (short) q.size()) {
+        while (length--) {
             short p = q.front();
             q.pop();
 
@@ -401,7 +409,7 @@ void BFS(short source, short target, short Direction, short data[]) {
                 b = 16;
             }
 
-            getAvailable(data[p], getDirection(data[p]), a, b, visited, depth, parent, q);
+            getAvailable(data[p], getDirection(data[p]), a, b, visited, parent, q);
         }
     }
 
@@ -428,8 +436,12 @@ void BFS(short source, short target, short Direction, short data[]) {
 
 
 void doIt() {
+    // initial direction.
     short Direction = NORTH;
+    // to check the visited cells while discovering the maze in the floodfill
     bool visited[17][17];
+    /* store the STATE of every cell in the maze
+     * I mean by the state the direction it entered the cell with and the open walls */
     short data[257];
 
     for (short i = 0; i < 17; ++i) {
@@ -441,7 +453,12 @@ void doIt() {
         data[i] = 0;
     }
 
+    // explore the maze
     floodFill(16, 1, Direction, visited, data);
+
+    /* Exception that behind the car exist a wall
+     * as we assumed through the code that there is always a path behind the car as we came from behind */
+    data[241] = (data[241] & (~BACK));
     BFS(241, 120, Direction, data);
 }
 
