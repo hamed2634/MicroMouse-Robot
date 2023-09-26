@@ -86,7 +86,7 @@ We've implemented a PD (Proportional-Derivative) control system for angle contro
 
    Functionality: Tuning D affects how the robot responds to deviations in the angle, contributing to stable and precise turns.
 
-For graphs and visualizations of the tuning process, please click [Testing/PID_CALC](Testing/PID_CALC) to access the response graphs.
+For graphs and visualizations of the tuning process, please click [Graphs](Testing/PID_CALC/Graphs) to access the response graphs.
 
 #### Sensor Reading
 
@@ -103,7 +103,7 @@ By combining precise angle control and sensor readings, our robot can successful
 ### Algorithms
 
 The general idea for the algorithm that it discovers the whole maze using floodfill algorithm and collect the data needed to configure the shortest path using bfs.
-The code is provided with comments to explain in details this approach.
+The code is provided with comments to explain in details this approach [Algorithm](Optimised_Algorithm/floodfill/floodfill.cpp).
 
 #### Maze Stimulation
 
