@@ -9,6 +9,7 @@ Welcome to the Micromouse project repository! This project showcases a small aut
 - [Software](#software)
   - [Controlling the Robot](#controlling-the-robot)
   - [Algorithms](#algorithms)
+- [Team](#team)
 - [Installation](#installation)
 - [Contributing](#contributing)
 - [Contact](#contact)
@@ -112,7 +113,17 @@ You can watch a maze simulation in action below:
 
 https://github.com/hamed2634/MicroMouse-Robot/assets/52867472/5dad4e3b-37f2-4e1f-a091-5508377ebc72
 
+## Team
 
+Meet the team members who contributed to this project:
+
+- **Hamed2634:** Responsible for controlling the robot.
+
+- **3bkareem:** Responsible for the algorithm development.
+
+- **om4rrr:** Responsible for PCB design and assembling hardware.
+
+- **Kareem Mohamed:** Responsible for 3D design.
 
 ## Installation
 
