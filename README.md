@@ -1,4 +1,4 @@
-# Micromouse Project
+# Micromouse Project 🤖
 
 ![Micromouse Robot](media/Dina.jpg)
 
@@ -14,38 +14,38 @@ Welcome to the Micromouse project repository! This project showcases a small aut
 - [Contributing](#contributing)
 - [Contact](#contact)
 
-## Hardware Components
+## Hardware Components 🛠️
 
 The Micromouse project utilizes the following hardware components:
 
-### PCB (Printed Circuit Board)
+### PCB (Printed Circuit Board) 🧩
 ![PCB](media/pcb_image.jpg)
 
 The central control hub that connects and manages all other components.
 
 You can find all details and schematic [Here](https://oshwlab.com/om4rr/micromouse).
 
-### Ultrasonic Sensor
+### Ultrasonic Sensor 🦇
 ![Ultrasonic Sensor](media/ultrasonic_image.jpg)
 
 Measures distances and detects obstacles for navigation.
 
-### IR Sensor (Infrared Sensor)
+### IR Sensor (Infrared Sensor) 🕵️
 ![IR Sensor](media/ir_sensor_image.jpg)
 
 Detects lines and walls for precise navigation in mazes.
 
-### Optical Encoder
+### Optical Encoder 🔍
 ![Optical Encoder](media/encoder_image.jpg)
 
 Tracks wheel movements for accurate control.
 
-### Wheels 
+### Wheels 🚗
 ![Wheels and Chassis](media/wheels_image.jpg)
 
 The wheels of the robot.
 
-### 3D Design
+### 3D Design 🖨️
 
 We have designed a custom 3D chassis for the robot using Fusion 360. Here's a photo of our 3D design:
 
@@ -53,31 +53,31 @@ We have designed a custom 3D chassis for the robot using Fusion 360. Here's a ph
 
 For More Photos click [Here](Design/images)
 
-### Bluetooth Module
+### Bluetooth Module 📶
 ![Bluetooth Module](media/bluetooth_image.jpg)
 
 Allows remote debugging and control for monitoring the robot.
 
-### Motors
+### Motors 🔄
 ![Motors](media/motors_image.jpg)
 
 Drive the wheels for movement.
 
-### Freewheel (Caster Wheel)
+### Freewheel (Caster Wheel) 🎡
 ![Freewheel](media/freewheel_image.jpg)
 
 Provides stability and maneuverability during turns.
 
-### Gyroscope (MPU6050)
+### Gyroscope (MPU6050) 🧭
 ![Gyroscope](media/gyroscope_image.jpg)
 
 Measures angles and helps maintain orientation for accurate navigation.
 
-## Software
+## Software 🧾
 
-### Controlling the Robot
+### Controlling the Robot 🎮
 
-#### Angle Control with PD System
+#### Angle Control with PD System 📐
 
 We've implemented a PD (Proportional-Derivative) control system for angle control using the Gyroscope (MPU6050) as the feedback element. The primary goal of this system is to keep the robot moving in a straight line and execute precise 90-degree turns when needed.
 
@@ -91,7 +91,7 @@ We've implemented a PD (Proportional-Derivative) control system for angle contro
 
 For graphs and visualizations of the tuning process, please click [Graphs](Testing/PID_CALC/Graphs) to access the response graphs.
 
-#### Sensor Reading
+#### Sensor Reading 📡
 
 To navigate the maze effectively, the robot continuously reads sensors located in every cell. Here's how the sensors work:
 
@@ -103,38 +103,37 @@ To navigate the maze effectively, the robot continuously reads sensors located i
 
 By combining precise angle control and sensor readings, our robot can successfully navigate the maze with accuracy and efficiency.
 
-### Algorithms
+### Algorithms 🧠
 
-The general idea for the algorithm that it discovers the whole maze using floodfill algorithm and collect the data needed to configure the shortest path using bfs.
-The code is provided with comments to explain in details this approach [Algorithm](Optimised_Algorithm/floodfill/floodfill.cpp).
+The general idea for the algorithm is that it discovers the whole maze using the flood-fill algorithm and collects the data needed to configure the shortest path using BFS.
+The code is provided with comments to explain in detail this approach [Algorithm](Optimised_Algorithm/floodfill/floodfill.cpp).
 
-#### Maze Stimulation
+#### Maze Simulation 🌀
 
 You can watch a maze simulation in action below:
 
+[![Maze Simulation](media/maze_simulation.gif)](https://github.com/hamed2634/MicroMouse-Robot/assets/52867472/5dad4e3b-37f2-4e1f-a091-5508377ebc72)
 
-https://github.com/hamed2634/MicroMouse-Robot/assets/52867472/5dad4e3b-37f2-4e1f-a091-5508377ebc72
-
-## Team
+## Team 👥
 
 Meet the team members who contributed to this project:
 
 - **[Hamed](https://github.com/Hamed2634):** Responsible for controlling the robot.
 
-- **[3bkareem](https://github.com/3bkareem):** Responsible for the algorithm development.
+- **[3bkareem](https://github.com/3bkareem):** Responsible for algorithm development.
 
 - **[om4rrr](https://github.com/om4rrr):** Responsible for PCB design and assembling hardware.
 
 - **[Kareem](https://github.com/UwUKareem):** Responsible for 3D design.
 
-## Installation
+## Installation 📥
 
 1. You can download the latest version of the Micromouse project as a ZIP file by clicking [here](link_to_zip_file.zip).
 
-## Contributing
+## Contributing 🤝
 
-While this project primarily serves as a showcase, I welcome suggestions and improvements. Feel free to create issues or send pull requests.
+While this project primarily serves as a showcase, we welcome suggestions and improvements. Feel free to create issues or send pull requests.
 
-## Contact
+## Contact 📧
 
-For inquiries or to get in touch, you can reach me at [hamed.mohamed26324@gmail.com]. Enjoy exploring the Micromouse project!
+For inquiries or to get in touch, you can reach us at [hamed.mohamed26324@gmail.com]. Enjoy exploring the Micromouse project! 🤖🚀
