@@ -1,6 +1,6 @@
 # Micromouse Project
 
-![Micromouse Robot](media/robot_image.jpg)
+![Micromouse Robot](media/Dina.jpg)
 
 Welcome to the Micromouse project repository! This project showcases a small autonomous robot designed for maze navigation. Explore this project if you're interested in robotics and autonomous systems.
 
