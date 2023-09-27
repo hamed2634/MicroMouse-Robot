@@ -137,4 +137,4 @@ While this project primarily serves as a showcase, I welcome suggestions and imp
 
 ## Contact
 
-For inquiries or to get in touch, you can reach me at [your contact email]. Enjoy exploring the Micromouse project!
+For inquiries or to get in touch, you can reach me at [hamed.mohamed26324@gmail.com]. Enjoy exploring the Micromouse project!
