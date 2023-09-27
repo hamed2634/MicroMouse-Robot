@@ -6,7 +6,7 @@ Welcome to the Micromouse project repository! This project showcases a small aut
 
 ## Table of Contents
 - [Hardware Components](#hardware-components)
-- [Software](#Software 🧾)
+- [Software](#Software)
   - [Controlling the Robot](#controlling-the-robot)
   - [Algorithms](#algorithms)
 - [Team](#team)
