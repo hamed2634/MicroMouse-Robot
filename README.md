@@ -5,14 +5,14 @@
 Welcome to the Micromouse project repository! This project showcases a small autonomous robot designed for maze navigation. Explore this project if you're interested in robotics and autonomous systems.
 
 ## Table of Contents
-- [Hardware Components](#hardware-components)
-- [Software](#Software)
-  - [Controlling the Robot](#controlling-the-robot)
-  - [Algorithms](#algorithms)
-- [Team](#team)
-- [Installation](#installation)
-- [Contributing](#contributing)
-- [Contact](#contact)
+- [Hardware Components](#hardware-components-%EF%B8%8F)
+- [Software](#software-)
+  - [Controlling the Robot](#controlling-the-robot-)
+  - [Algorithms](#algorithms-)
+- [Team](#team-)
+- [Installation](#installation-)
+- [Contributing](#contributing-)
+- [Contact](#contact-)
 
 ## Hardware Components 🛠️
 
