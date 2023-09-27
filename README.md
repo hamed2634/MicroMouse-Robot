@@ -119,13 +119,13 @@ https://github.com/hamed2634/MicroMouse-Robot/assets/52867472/5dad4e3b-37f2-4e1f
 
 Meet the team members who contributed to this project:
 
-- **Hamed2634:** Responsible for controlling the robot.
+- **[Hamed](https://github.com/Hamed2634):** Responsible for controlling the robot.
 
-- **3bkareem:** Responsible for the algorithm development.
+- **[3bkareem](https://github.com/3bkareem):** Responsible for the algorithm development.
 
-- **om4rrr:** Responsible for PCB design and assembling hardware.
+- **[om4rrr](https://github.com/om4rrr):** Responsible for PCB design and assembling hardware.
 
-- **Kareem Mohamed:** Responsible for 3D design.
+- **[Kareem](https://github.com/UwUKareem):** Responsible for 3D design.
 
 ## Installation
 
